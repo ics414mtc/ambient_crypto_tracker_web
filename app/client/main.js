@@ -1,22 +1,30 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { Meteor } from 'meteor/meteor';
+import { HTTP } from 'meteor/http'; 
 
 import './main.html';
 
 Template.hello.onCreated(function helloOnCreated() {
-  // counter starts at 0
-  this.counter = new ReactiveVar(0);
+	this.on = new ReactiveVar(true);
 });
 
 Template.hello.helpers({
-  counter() {
-    return Template.instance().counter.get();
-  },
+ 
 });
 
 Template.hello.events({
   'click button'(event, instance) {
-    // increment the counter when button is clicked
-    instance.counter.set(instance.counter.get() + 1);
+  	instance.on.set(!instance.on.curValue);
+    console.log('CLICKED!!');
+  	HTTP.call('POST', 'http://localhost:3031/status', {
+  		data: {
+  			status: instance.on.curValue
+  		},
+  	}, (error, result) => {
+  			console.log(error);
+  			console.log(result);
+  		}
+  	);
   },
 });
