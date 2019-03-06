@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
+    "body-parser": "^1.18.3",
     "meteor-node-stubs": "^0.4.1",
+    "router": "^1.3.3",
     "yeelight-awesome": "^1.0.12"
   },
   "meteor": {
