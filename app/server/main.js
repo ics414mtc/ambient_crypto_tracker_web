@@ -1,12 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import { Discover, IDevice, defaultLogger } from "yeelight-awesome";
+const y = require("yeelight-awesome");
 import bodyParser from 'body-parser';
 Picker.middleware(bodyParser());
 
 Meteor.startup(() => {
-	const discover = new Discover({ port: 1982,  debug: true });
+    const discover = new y.Discover({
+        port: 1982,
+        debug: true
+    });    
     var yeelight;
-    discover.once("deviceAdded", (device: IDevice) => {
+    discover.once("deviceAdded", (device) => {
     	yeelight = new y.Yeelight({
             lightIp: device.host,
             lightPort: device.port
@@ -14,6 +17,7 @@ Meteor.startup(() => {
         yeelight.on("connected", () => {
             yeelight.setRGB(new y.Color(255, 255, 255), "smooth", 5000);
         });
+	yeelight.connect();
     });
     discover.start();
 
