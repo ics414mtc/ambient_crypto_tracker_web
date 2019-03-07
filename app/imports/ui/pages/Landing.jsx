@@ -8,13 +8,23 @@ class Landing extends React.Component {
   constructor() {
     super();
     this.light_on =  false;
-    Meteor.call('discover', {});
+    Meteor.call('discover', {}, (err) => {
+      if (err) {
+        alert(err);
+      }
+    });
     this.handleClick = this.handleClick.bind(this);
   }
 
   /** Update the form controls each time the user interacts with them. */
   handleClick() {
     this.light_on = !this.light_on;
+    console.log(this.light_on);
+    Meteor.call('toggle_light', {light_on: this.light_on}, (err) => {
+      if (err) {
+        alert(err);
+      }
+    });
   }
 
   render() {
