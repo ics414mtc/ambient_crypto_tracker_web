@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 
 const y = require("yeelight-awesome");
 let yeelight = NaN;
-let promise = NaN;
 let connected = false;
 
 Meteor.methods({
@@ -29,25 +28,43 @@ Meteor.methods({
               console.log("Something went wrong trying to turn on the light! ", reason);
             });
         });
-        yeelight.connect();
+
+        let connect_promise = yeelight.connect();
+
+        connect_promise.then(function(value){
+          console.log("Connected to light! ", value);
+        });
+
+        connect_promise.catch(function(reason){
+          console.log("Something went wrong trying to connect to light! ", reason);
+        });
       });
 
-      promise = discover.start();
+      let promise = discover.start();
 
       promise.then(function(value){
-        console.log("Connected to light! ", value);
+        console.log("trying to discover light! ", value);
       });
 
       promise.catch(function(reason){
-        console.log("Something went wrong trying to connect to light! ", reason);
+        console.log("Something went wrong trying to try to discover light! ", reason);
       });
     }
   },
 
   toggle_light(light_on) {
       console.log(light_on['light_on']);
+      let brightness = 0;
       if (!this.isSimulation) {
-        (light_on['light_on'] ? yeelight.setBright(100, "smooth", 1000) : yeelight.setBright(0, "smooth", 1000));
+        (light_on['light_on'] ? brightness = 100 : brightness = 0);
+        let set_bright_promise = yeelight.setBright(brightness, "smooth", 1000);
+        set_bright_promise.then(function(value){
+          console.log("brightness set", value);
+        });
+
+        set_bright_promise.catch(function(reason){
+          console.log("Something went wrong trying to set brightness! ", reason);
+        });
     }
   }
 });
