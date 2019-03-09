@@ -56,7 +56,7 @@ Meteor.methods({
       console.log(light_on['light_on']);
       let brightness = 0;
       if (!this.isSimulation) {
-        (light_on['light_on'] ? brightness = 100 : brightness = 0);
+        (light_on['light_on'] ? brightness = 100 : brightness = 1);
         let set_bright_promise = yeelight.setBright(brightness, "smooth", 1000);
         set_bright_promise.then(function(value){
           console.log("brightness set", value);
