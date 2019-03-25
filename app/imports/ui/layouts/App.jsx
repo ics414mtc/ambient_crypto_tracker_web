@@ -22,7 +22,27 @@ class App extends React.Component {
     return (
         <Router>
           <div>
-            <NavBar/>
+            {/*<NavBar/>*/}
+            <style>{`
+              html, body {
+                background-color: #252839 !important;
+              }
+              p {
+                align-content: center;
+                background-color: #495285;
+                color: #fff;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                min-height: 6em;
+              }
+              p > span {
+                opacity: 0.4;
+                text-align: center;
+              }
+            }
+            `}
+            </style>
             <Switch>
               <Route exact path="/" component={Landing}/>
               <Route path="/signin" component={Signin}/>
