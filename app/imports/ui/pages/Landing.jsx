@@ -27,8 +27,7 @@ class Landing extends React.Component {
                   flicker_setting_pos_five: 5,
                   flicker_setting_pos_ten: 5,
 
-                  current_coin: 0,
-                  past_coin: 0,
+                  coin_value: 0,
 
                   coin: 'BitCoin'
     };
@@ -50,7 +49,10 @@ class Landing extends React.Component {
   updateCoin() {
     Meteor.call('request_daily_price', function(err, res) {
       console.log(res);
-    });
+      res = JSON.parse(res);
+      console.log(res.data);
+      this.setState({coin_value: res.data[0].quote.USD.price});
+    }.bind(this));
   }
 
 
@@ -320,7 +322,7 @@ class Landing extends React.Component {
             <Grid.Row>
               <Segment inverted>
                 <Statistic inverted>
-                  <Statistic.Value>{this.state.current_coin}</Statistic.Value>
+                  <Statistic.Value>{this.state.coin_value}</Statistic.Value>
                   <Statistic.Label>{this.state.coin} Value</Statistic.Label>
                 </Statistic>
               </Segment>
