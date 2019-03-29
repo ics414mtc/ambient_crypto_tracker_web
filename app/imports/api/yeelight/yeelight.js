@@ -4,6 +4,7 @@ const y = require("yeelight-awesome");
 
 let yeelight = NaN;
 let connected = false;
+let intervalId = null;
 
 Meteor.methods({
   discover() {
@@ -76,6 +77,32 @@ Meteor.methods({
       return result.content;
     }
     return null;
+  },
+  brightness(brightness_percent) {
+    if (!this.isSimulation) {
+      let set_bright_promise = yeelight.setBright(brightness_percent, "smooth", 1000);
+      set_bright_promise.then(function(value){
+        console.log("brightness set", value);
+      });
+      set_bright_promise.catch(function(err){
+        console.log("Something went wrong trying to set brightness! ", err);
+      });
+    }
+  },
+  flicker(flicker_rate) {
+    if (!this.isSimulation) {
+      let fps = flicker_rate / 10;
+      let counter = 0;
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(function() {
+        counter += fps;
+        if (counter > 1) {
+          this.toggle_light({"light_on": true});
+          this.toggle_light({"light_on": false});
+          counter -= 1;
+        }
+      }, 1000);
+    }
   }
 });
 
