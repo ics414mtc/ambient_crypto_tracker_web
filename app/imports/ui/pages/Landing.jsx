@@ -111,7 +111,7 @@ class Landing extends React.Component {
       this.setState({current_brightness: current_brightness});
       this.setState({current_flicker: current_flicker});
 
-      
+
 
     }.bind(this));
   }
@@ -146,6 +146,7 @@ class Landing extends React.Component {
 
   /** Update the form controls each time the user interacts with them. */
   handleChangeCoin(e, {value}) {
+    this.updateCoin();
     return this.setState({coin: value});
   }
 
