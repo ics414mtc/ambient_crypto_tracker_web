@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 const y = require("yeelight-awesome");
+
 let yeelight = NaN;
 let connected = false;
 
@@ -66,6 +67,12 @@ Meteor.methods({
           console.log("Something went wrong trying to set brightness! ", reason);
         });
     }
+  },
+  request_daily_price() {
+    const CMC_PRO_API_KEY = "694e5b29-c911-4075-8bf2-05f181df5bb6";
+    const API_URL = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=5000&convert=USD&CMC_PRO_API_KEY=${CMC_PRO_API_KEY}`;
+    const result = HTTP.call('GET', API_URL);
+    return result.content;
   }
 });
 
