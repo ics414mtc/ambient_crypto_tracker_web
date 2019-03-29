@@ -27,6 +27,9 @@ class Landing extends React.Component {
                   flicker_setting_pos_five: 5,
                   flicker_setting_pos_ten: 5,
 
+                  current_flicker: 5,
+                  current_brightness: 5,
+
                   coin_value: 0,
 
                   coin: 'BitCoin'
@@ -48,16 +51,75 @@ class Landing extends React.Component {
 
   updateCoin() {
     Meteor.call('request_daily_price', function(err, res) {
-      console.log(res);
       res = JSON.parse(res);
       console.log(res.data);
-      this.setState({coin_value: res.data[0].quote.USD.price});
+
+      let index = 0;
+
+      // get coin index
+      switch(this.state.coin) {
+        case 'BitCoin':
+          index = 0;
+          break;
+        case 'Ethereum':
+          index = 1;
+          break;
+        case 'Litecoin':
+          index = 4;
+          break;
+        case  'Bitcoin Cash':
+          index = 5;
+          break;
+        default:
+          index = 0;
+      }
+
+      this.setState({coin_value: res.data[index].quote.USD.price});
+
+      let current_brightness = 0;
+      let current_flicker = 0;
+
+      if (res.data[index].quote.USD.percent_change_7d < -10) {
+        current_brightness = this.state.brightness_setting_neg_ten;
+        current_flicker = this.state.flicker_setting_neg_ten;
+      } else if (res.data[index].quote.USD.percent_change_7d < -5) {
+        current_brightness = this.state.brightness_setting_neg_five;
+        current_flicker = this.state.flicker_setting_neg_five;
+      } else if (res.data[index].quote.USD.percent_change_7d < -2) {
+        current_brightness = this.state.brightness_setting_neg_two;
+        current_flicker = this.state.flicker_setting_neg_two;
+      } else if (res.data[index].quote.USD.percent_change_7d < -1) {
+        current_brightness = this.state.brightness_setting_neg_one;
+        current_flicker = this.state.flicker_setting_neg_one;
+      } else if (res.data[index].quote.USD.percent_change_7d < 0) {
+        current_brightness = this.state.brightness_setting_zero;
+        current_flicker = this.state.flicker_setting_zero;
+      } else if (res.data[index].quote.USD.percent_change_7d < 1) {
+        current_brightness = this.state.brightness_setting_pos_one;
+        current_flicker = this.state.flicker_setting_pos_one;
+      } else if (res.data[index].quote.USD.percent_change_7d < 2) {
+        current_brightness = this.state.brightness_setting_pos_two;
+        current_flicker = this.state.flicker_setting_pos_two;
+      } else if (res.data[index].quote.USD.percent_change_7d < 5) {
+        current_brightness = this.state.brightness_setting_pos_five;
+        current_flicker = this.state.flicker_setting_pos_five;
+      } else {
+        current_brightness = this.state.brightness_setting_pos_ten;
+        current_flicker = this.state.flicker_setting_pos_ten;
+      }
+
+      this.setState({current_brightness: current_brightness});
+      this.setState({current_flicker: current_flicker});
+
+      
+
     }.bind(this));
   }
 
 
   componentDidMount() {
-    this.intervalID = Meteor.setInterval(this.updateCoin, 1000);
+    this.updateCoin();
+    this.intervalID = Meteor.setInterval(this.updateCoin, 3600000);
   }
 
   componentWillMount() {
