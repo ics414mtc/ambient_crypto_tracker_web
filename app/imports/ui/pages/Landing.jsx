@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import {Grid, Button, Container, Form, Header, Table, Range, Radio, Icon } from 'semantic-ui-react';
+import {Grid, Button, Container, Form, Header, Table, Range, Radio, Icon, Statistic, Segment } from 'semantic-ui-react';
 
 /** A simple static component to render some text for the landing page. */
 class Landing extends React.Component {
@@ -27,8 +27,10 @@ class Landing extends React.Component {
                   flicker_setting_pos_five: 5,
                   flicker_setting_pos_ten: 5,
 
-                  coin: 'BitCoin'
+                  current_coin: 0,
+                  past_coin: 0,
 
+                  coin: 'BitCoin'
     };
 
     this.light_on =  false;
@@ -40,6 +42,22 @@ class Landing extends React.Component {
     this.handleClick = this.handleClick.bind(this);
     this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
     this.handleChangeCoin = this.handleChangeCoin.bind(this);
+    this.componentWillMount = this.componentWillMount.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.updateCoin = this.updateCoin.bind(this);
+  }
+
+  updateCoin() {
+    console.log(this.state.current_coin);
+  }
+
+
+  componentDidMount() {
+    this.intervalID = Meteor.setInterval(this.updateCoin, 1000);
+  }
+
+  componentWillMount() {
+    Meteor.clearInterval(this.intervalID);
   }
 
   handleChangeBrightness(pct_chg) {
@@ -88,7 +106,6 @@ class Landing extends React.Component {
             </Grid.Row>
 
             <Grid.Row columns={2}>
-
               <Grid.Column>
                 <Table celled>
                 <Table.Header>
@@ -296,7 +313,15 @@ class Landing extends React.Component {
                   </Table.Body>
                 </Table>
               </Grid.Column>
+            </Grid.Row>
 
+            <Grid.Row>
+              <Segment>
+                <Statistic inverted>
+                  <Statistic.Value>{this.state.current_coin}</Statistic.Value>
+                  <Statistic.Label>{this.state.coin} Value</Statistic.Label>
+                </Statistic>
+              </Segment>
             </Grid.Row>
 
             <Grid.Row columns={1}>
