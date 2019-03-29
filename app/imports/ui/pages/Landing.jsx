@@ -108,12 +108,19 @@ class Landing extends React.Component {
         current_flicker = this.state.flicker_setting_pos_ten;
       }
 
+      console.log(current_brightness);
+
       this.setState({current_brightness: current_brightness});
       this.setState({current_flicker: current_flicker});
-
-
-
     }.bind(this));
+
+    console.log(this.state.current_brightness);
+
+    Meteor.call('brightness', this.state.current_brightness, (err) => {
+      if (err) {
+        alert(err);
+      }
+    });
   }
 
 
@@ -131,6 +138,7 @@ class Landing extends React.Component {
       const brightness_object = {};
       brightness_object['brightness_setting_'
                           + pct_chg] = brightness.target.value;
+      console.log(brightness_object);
       return this.setState(brightness_object);
     }.bind(this);
   }
