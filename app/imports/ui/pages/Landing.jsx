@@ -316,7 +316,7 @@ class Landing extends React.Component {
             </Grid.Row>
 
             <Grid.Row>
-              <Segment>
+              <Segment inverted>
                 <Statistic inverted>
                   <Statistic.Value>{this.state.current_coin}</Statistic.Value>
                   <Statistic.Label>{this.state.coin} Value</Statistic.Label>
