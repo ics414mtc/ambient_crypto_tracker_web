@@ -14,6 +14,9 @@ class Landing extends React.Component {
       }
     });
     this.handleClick = this.handleClick.bind(this);
+    Meteor.call('request_daily_price', function(err, res) {
+      console.log(res);
+    });
   }
 
   /** Update the form controls each time the user interacts with them. */
