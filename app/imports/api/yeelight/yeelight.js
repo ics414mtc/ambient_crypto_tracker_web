@@ -69,10 +69,13 @@ Meteor.methods({
     }
   },
   request_daily_price() {
-    const CMC_PRO_API_KEY = "694e5b29-c911-4075-8bf2-05f181df5bb6";
-    const API_URL = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=5000&convert=USD&CMC_PRO_API_KEY=${CMC_PRO_API_KEY}`;
-    const result = HTTP.call('GET', API_URL);
-    return result.content;
+    if (!this.isSimulation) {
+      const CMC_PRO_API_KEY = "694e5b29-c911-4075-8bf2-05f181df5bb6";
+      const API_URL = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=5000&convert=USD&CMC_PRO_API_KEY=${CMC_PRO_API_KEY}`;
+      const result = HTTP.call('GET', API_URL);
+      return result.content;
+    }
+    return null;
   }
 });
 

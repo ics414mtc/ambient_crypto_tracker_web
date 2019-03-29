@@ -48,7 +48,9 @@ class Landing extends React.Component {
   }
 
   updateCoin() {
-    console.log(this.state.current_coin);
+    Meteor.call('request_daily_price', function(err, res) {
+      console.log(res);
+    });
   }
 
 
@@ -81,9 +83,6 @@ class Landing extends React.Component {
   /** Update the form controls each time the user interacts with them. */
   handleChangeCoin(e, {value}) {
     return this.setState({coin: value});
-    Meteor.call('request_daily_price', function(err, res) {
-      console.log(res);
-    });
   }
 
   /** Update the form controls each time the user interacts with them. */
