@@ -93,7 +93,7 @@ Meteor.methods({
   },
   flicker(params) {
     if (!this.isSimulation) {
-      let flicker_rate = params.flicker;
+      let flicker_rate = (params.flicker + 1);
       let brightness = params.brightness;
       let fps = flicker_rate / 10;
       let counter = 0;
@@ -120,7 +120,7 @@ Meteor.methods({
           });
           counter = 0;
         }
-      }, 5000);
+      }, flicker_rate * 1000);
     }
   }
 });

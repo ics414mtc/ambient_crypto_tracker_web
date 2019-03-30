@@ -29,6 +29,7 @@ class Landing extends React.Component {
 
                   current_flicker: 5,
                   current_brightness: 5,
+                  current_pct_chg: 0,
 
                   coin_value: 0,
 
@@ -47,6 +48,7 @@ class Landing extends React.Component {
     this.componentWillMount = this.componentWillMount.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.updateCoin = this.updateCoin.bind(this);
+    this.updateSettings = this.updateSettings.bind(this);
   }
 
   updateCoin() {
@@ -75,6 +77,7 @@ class Landing extends React.Component {
       }
 
       this.setState({coin_value: res.data[index].quote.USD.price});
+      this.setState({current_pct_chg: res.data[index].quote.USD.percent_change_7d});
 
       let current_brightness = 0;
       let current_flicker = 0;
@@ -128,6 +131,48 @@ class Landing extends React.Component {
     });
   }
 
+  updateSettings() {
+    let current_brightness = 0;
+    let current_flicker = 0;
+
+    if (this.state.current_pct_chg < -10) {
+      current_brightness = this.state.brightness_setting_neg_ten;
+      current_flicker = this.state.flicker_setting_neg_ten;
+    } else if (this.state.current_pct_chg < -5) {
+      current_brightness = this.state.brightness_setting_neg_five;
+      current_flicker = this.state.flicker_setting_neg_five;
+    } else if (this.state.current_pct_chg < -2) {
+      current_brightness = this.state.brightness_setting_neg_two;
+      current_flicker = this.state.flicker_setting_neg_two;
+    } else if (this.state.current_pct_chg < -1) {
+      current_brightness = this.state.brightness_setting_neg_one;
+      current_flicker = this.state.flicker_setting_neg_one;
+    } else if (this.state.current_pct_chg < 0) {
+      current_brightness = this.state.brightness_setting_zero;
+      current_flicker = this.state.flicker_setting_zero;
+    } else if (this.state.current_pct_chg < 1) {
+      current_brightness = this.state.brightness_setting_pos_one;
+      current_flicker = this.state.flicker_setting_pos_one;
+    } else if (this.state.current_pct_chg < 2) {
+      current_brightness = this.state.brightness_setting_pos_two;
+      current_flicker = this.state.flicker_setting_pos_two;
+    } else if (this.state.current_pct_chg < 5) {
+      current_brightness = this.state.brightness_setting_pos_five;
+      current_flicker = this.state.flicker_setting_pos_five;
+    } else {
+      current_brightness = this.state.brightness_setting_pos_ten;
+      current_flicker = this.state.flicker_setting_pos_ten;
+    }
+
+    this.setState({current_brightness: current_brightness});
+    this.setState({current_flicker: current_flicker});
+
+    Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)}, (err) => {
+      if (err) {
+        alert(err);
+      }
+    });
+  }
 
   componentDidMount() {
     this.updateCoin();
@@ -144,6 +189,7 @@ class Landing extends React.Component {
       brightness_object['brightness_setting_'
                           + pct_chg] = brightness.target.value;
       console.log(brightness_object);
+      this.updateSettings();
       return this.setState(brightness_object);
     }.bind(this);
   }
@@ -153,6 +199,7 @@ class Landing extends React.Component {
       const flicker_object = {};
       flicker_object['flicker_setting_'
                           + pct_chg] = flicker_rate.target.value;
+      this.updateSettings();
       return this.setState(flicker_object);
     }.bind(this);
   }
