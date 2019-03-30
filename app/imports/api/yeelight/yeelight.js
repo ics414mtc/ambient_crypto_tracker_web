@@ -91,19 +91,36 @@ Meteor.methods({
       });
     }
   },
-  flicker(flicker_rate) {
+  flicker(params) {
     if (!this.isSimulation) {
+      let flicker_rate = params.flicker;
+      let brightness = params.brightness;
       let fps = flicker_rate / 10;
       let counter = 0;
       if (intervalId) clearInterval(intervalId);
       intervalId = setInterval(function() {
         counter += fps;
         if (counter > 1) {
-          this.toggle_light({"light_on": true});
-          this.toggle_light({"light_on": false});
-          counter -= 1;
+          console.log("Flickering!");
+          let set_bright_promise = yeelight.setBright(1, "sudden", 500);
+          set_bright_promise.then(function(value){
+            console.log("Flickering off!");
+            setTimeout(function() {
+              let set_flicker = yeelight.setBright(brightness, "sudden", 500);
+              set_flicker.then(function(value){
+                console.log("Flickering on!");
+              });
+              set_flicker.catch(function(err){
+                console.log("Something went wrong flickering on! ", err);
+              });
+            }, 2500);
+          });
+          set_bright_promise.catch(function(err){
+            console.log("Something went wrong flickering off!", err);
+          });
+          counter = 0;
         }
-      }, 1000);
+      }, 5000);
     }
   }
 });

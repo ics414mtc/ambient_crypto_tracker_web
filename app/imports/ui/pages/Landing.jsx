@@ -116,7 +116,12 @@ class Landing extends React.Component {
 
     console.log(this.state.current_brightness);
 
-    Meteor.call('brightness', this.state.current_brightness, (err) => {
+    Meteor.call('brightness', this.state.current_brightness * 10, (err) => {
+      if (err) {
+        alert(err);
+      }
+    });
+    Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)}, (err) => {
       if (err) {
         alert(err);
       }
@@ -206,7 +211,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>-10%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_neg_ten}
                           onChange={this.handleChangeBrightness('neg_ten')} />
                       </Table.Cell>
@@ -219,7 +224,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>-5%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_neg_five}
                           onChange={this.handleChangeBrightness('neg_five')} />
                       </Table.Cell>
@@ -232,7 +237,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>-2%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_neg_two}
                           onChange={this.handleChangeBrightness('neg_two')} />
                       </Table.Cell>
@@ -245,7 +250,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>-1%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_neg_one}
                           onChange={this.handleChangeBrightness('neg_one')} />
                       </Table.Cell>
@@ -258,7 +263,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>0%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_zero}
                           onChange={this.handleChangeBrightness('zero')} />
                       </Table.Cell>
@@ -271,7 +276,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>+1%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_pos_one}
                           onChange={this.handleChangeBrightness('pos_one')} />
                       </Table.Cell>
@@ -284,7 +289,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>+2%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_pos_two}
                           onChange={this.handleChangeBrightness('pos_two')} />
                       </Table.Cell>
@@ -297,7 +302,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>+5%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_pos_five}
                           onChange={this.handleChangeBrightness('pos_five')} />
                       </Table.Cell>
@@ -310,7 +315,7 @@ class Landing extends React.Component {
                     <Table.Row>
                       <Table.Cell textAlign='center'>+10%</Table.Cell>
                       <Table.Cell>
-                        <input type='range' min={0} max={10}
+                        <input type='range' min={1} max={10}
                           value={this.state.brightness_setting_pos_ten}
                           onChange={this.handleChangeBrightness('pos_ten')} />
                       </Table.Cell>
