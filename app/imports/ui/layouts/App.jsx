@@ -25,11 +25,11 @@ class App extends React.Component {
             {/*<NavBar/>*/}
             <style>{`
               html, body {
-                background-color: #252839 !important;
+                background-color: #F0F0F0 !important;
               }
               p {
                 align-content: center;
-                background-color: #495285;
+                background-color: #F0F0F0;
                 color: #fff;
                 display: flex;
                 flex-direction: column;

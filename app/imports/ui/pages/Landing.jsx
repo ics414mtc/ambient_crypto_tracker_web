@@ -1,39 +1,73 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import {Grid, Button, Container, Form, Header, Table, Range, Radio, Icon, Statistic, Segment } from 'semantic-ui-react';
+import _ from 'underscore';
+import {Grid, Button, Container, Form, Header, Table, Range, Radio, Icon, Statistic, Segment, Menu, Reveal} from 'semantic-ui-react';
+import LightSetting from '/imports/ui/components/LightSetting';
+import StuffItem from "./ListStuff";
 
 /** A simple static component to render some text for the landing page. */
 class Landing extends React.Component {
   /** Initialize component state with properties for login and redirection. */
   constructor() {
     super();
-    this.state = {brightness_setting_neg_ten: 5,
-                  brightness_setting_neg_five: 5,
-                  brightness_setting_neg_two: 5,
-                  brightness_setting_neg_one: 5,
-                  brightness_setting_zero: 5,
-                  brightness_setting_pos_one: 5,
-                  brightness_setting_pos_two: 5,
-                  brightness_setting_pos_five: 5,
-                  brightness_setting_pos_ten: 5,
+    this.state = {
+      light_settings: {
+        neg_ten: {
+          pct_chg: Number(-10),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        neg_five: {
+          pct_chg: Number(-5),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        neg_two: {
+          pct_chg: Number(-2),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        neg_one: {
+          pct_chg: Number(-1),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        zero: {
+          pct_chg: Number(0),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        pos_one: {
+          pct_chg: Number(1),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        pos_two: {
+          pct_chg: Number(2),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        pos_five: {
+          pct_chg: Number(5),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+        pos_ten: {
+          pct_chg: Number(10),
+          brightness_setting: Number(5),
+          flicker_setting: Number(5)
+        },
+      },
 
-                  flicker_setting_neg_ten: 5,
-                  flicker_setting_neg_five: 5,
-                  flicker_setting_neg_two: 5,
-                  flicker_setting_neg_one: 5,
-                  flicker_setting_zero: 5,
-                  flicker_setting_pos_one: 5,
-                  flicker_setting_pos_two: 5,
-                  flicker_setting_pos_five: 5,
-                  flicker_setting_pos_ten: 5,
+      current_flicker: 5,
+      current_brightness: 5,
+      current_pct_chg: 0,
 
-                  current_flicker: 5,
-                  current_brightness: 5,
-                  current_pct_chg: 0,
+      coin_value: 0,
 
-                  coin_value: 0,
+      coin: 'BitCoin',
 
-                  coin: 'BitCoin'
+      display: 'Light Settings'
     };
 
     this.light_on =  false;
@@ -43,6 +77,7 @@ class Landing extends React.Component {
       }
     });
     this.handleClick = this.handleClick.bind(this);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
     this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
     this.handleChangeCoin = this.handleChangeCoin.bind(this);
     this.componentWillMount = this.componentWillMount.bind(this);
@@ -56,6 +91,8 @@ class Landing extends React.Component {
       res = JSON.parse(res);
       console.log(res.data);
 
+      let current_brightness = 0;
+      let current_flicker = 0;
       let index = 0;
 
       // get coin index
@@ -76,102 +113,59 @@ class Landing extends React.Component {
           index = 0;
       }
 
+      const current_pct_chg = res.data[index].quote.USD.percent_change_7d;
+
       this.setState({coin_value: res.data[index].quote.USD.price});
-      this.setState({current_pct_chg: res.data[index].quote.USD.percent_change_7d});
+      this.setState({current_pct_chg: current_pct_chg});
 
-      let current_brightness = 0;
-      let current_flicker = 0;
+      const pct_chgs = _.pluck(this.state.light_settings, 'pct_chg');
+      const closest_pct_chg = _.reduce(pct_chgs, (prev, curr) =>
+          Math.abs(curr - current_pct_chg) < Math.abs(prev - current_pct_chg) ? curr : prev)
+      const current_setting = _.find(this.state.light_settings, (setting) => setting.pct_chg == closest_pct_chg)
 
-      if (res.data[index].quote.USD.percent_change_7d < -10) {
-        current_brightness = this.state.brightness_setting_neg_ten;
-        current_flicker = this.state.flicker_setting_neg_ten;
-      } else if (res.data[index].quote.USD.percent_change_7d < -5) {
-        current_brightness = this.state.brightness_setting_neg_five;
-        current_flicker = this.state.flicker_setting_neg_five;
-      } else if (res.data[index].quote.USD.percent_change_7d < -2) {
-        current_brightness = this.state.brightness_setting_neg_two;
-        current_flicker = this.state.flicker_setting_neg_two;
-      } else if (res.data[index].quote.USD.percent_change_7d < -1) {
-        current_brightness = this.state.brightness_setting_neg_one;
-        current_flicker = this.state.flicker_setting_neg_one;
-      } else if (res.data[index].quote.USD.percent_change_7d < 0) {
-        current_brightness = this.state.brightness_setting_zero;
-        current_flicker = this.state.flicker_setting_zero;
-      } else if (res.data[index].quote.USD.percent_change_7d < 1) {
-        current_brightness = this.state.brightness_setting_pos_one;
-        current_flicker = this.state.flicker_setting_pos_one;
-      } else if (res.data[index].quote.USD.percent_change_7d < 2) {
-        current_brightness = this.state.brightness_setting_pos_two;
-        current_flicker = this.state.flicker_setting_pos_two;
-      } else if (res.data[index].quote.USD.percent_change_7d < 5) {
-        current_brightness = this.state.brightness_setting_pos_five;
-        current_flicker = this.state.flicker_setting_pos_five;
-      } else {
-        current_brightness = this.state.brightness_setting_pos_ten;
-        current_flicker = this.state.flicker_setting_pos_ten;
-      }
+      console.log(pct_chgs);
+      console.log(this.state.current_pct_chg);
+      console.log(closest_pct_chg);
+      console.log(current_setting);
 
-      console.log(current_brightness);
+      this.setState({current_brightness: current_setting.brightness_setting});
+      this.setState({current_flicker: current_setting.flicker_setting});
 
-      this.setState({current_brightness: current_brightness});
-      this.setState({current_flicker: current_flicker});
+      console.log("updateCoin brightness " + this.state.current_brightness);
+      console.log("updateCoin flicker " + this.state.current_flicker);
+
+      Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)}, (err) => {
+        if (err) {
+          alert(err);
+        }
+      });
+
     }.bind(this));
-
-    console.log(this.state.current_brightness);
-
-    Meteor.call('brightness', this.state.current_brightness * 10, (err) => {
-      if (err) {
-        alert(err);
-      }
-    });
-    Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)}, (err) => {
-      if (err) {
-        alert(err);
-      }
-    });
   }
 
   updateSettings() {
-    let current_brightness = 0;
-    let current_flicker = 0;
+    const pct_chgs = _.pluck(this.state.light_settings, 'pct_chg');
+    const closest_pct_chg = _.reduce(pct_chgs, (prev, curr) =>
+        Math.abs(curr - this.state.current_pct_chg) < Math.abs(prev - this.state.current_pct_chg) ? curr : prev)
+    const current_setting = _.find(this.state.light_settings, (setting) => setting.pct_chg == closest_pct_chg)
 
-    if (this.state.current_pct_chg < -10) {
-      current_brightness = this.state.brightness_setting_neg_ten;
-      current_flicker = this.state.flicker_setting_neg_ten;
-    } else if (this.state.current_pct_chg < -5) {
-      current_brightness = this.state.brightness_setting_neg_five;
-      current_flicker = this.state.flicker_setting_neg_five;
-    } else if (this.state.current_pct_chg < -2) {
-      current_brightness = this.state.brightness_setting_neg_two;
-      current_flicker = this.state.flicker_setting_neg_two;
-    } else if (this.state.current_pct_chg < -1) {
-      current_brightness = this.state.brightness_setting_neg_one;
-      current_flicker = this.state.flicker_setting_neg_one;
-    } else if (this.state.current_pct_chg < 0) {
-      current_brightness = this.state.brightness_setting_zero;
-      current_flicker = this.state.flicker_setting_zero;
-    } else if (this.state.current_pct_chg < 1) {
-      current_brightness = this.state.brightness_setting_pos_one;
-      current_flicker = this.state.flicker_setting_pos_one;
-    } else if (this.state.current_pct_chg < 2) {
-      current_brightness = this.state.brightness_setting_pos_two;
-      current_flicker = this.state.flicker_setting_pos_two;
-    } else if (this.state.current_pct_chg < 5) {
-      current_brightness = this.state.brightness_setting_pos_five;
-      current_flicker = this.state.flicker_setting_pos_five;
-    } else {
-      current_brightness = this.state.brightness_setting_pos_ten;
-      current_flicker = this.state.flicker_setting_pos_ten;
-    }
+    console.log(pct_chgs);
+    console.log(this.state.current_pct_chg);
+    console.log(closest_pct_chg);
+    console.log(current_setting);
 
-    this.setState({current_brightness: current_brightness});
-    this.setState({current_flicker: current_flicker});
+    this.setState({current_brightness: current_setting.brightness_setting});
+    this.setState({current_flicker: current_setting.flicker_setting});
 
-    Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)}, (err) => {
-      if (err) {
-        alert(err);
-      }
-    });
+    console.log("updateSettings brightness " + this.state.current_brightness);
+    console.log("updateSettings flicker " + this.state.current_flicker);
+
+    Meteor.call('flicker', {flicker: this.state.current_flicker, brightness: (this.state.current_brightness * 10)},
+        (err) => {
+          if (err) {
+            alert(err);
+          }
+        });
   }
 
   componentDidMount() {
@@ -183,24 +177,23 @@ class Landing extends React.Component {
     Meteor.clearInterval(this.intervalID);
   }
 
-  handleChangeBrightness(pct_chg) {
+  handleChangeBrightness(key) {
     return function (brightness) {
-      const brightness_object = {};
-      brightness_object['brightness_setting_'
-                          + pct_chg] = brightness.target.value;
-      console.log(brightness_object);
-      this.updateSettings();
-      return this.setState(brightness_object);
+      const brightness_object = Object.assign({}, this.state.light_settings);
+      brightness_object[key].brightness_setting = brightness.target.value;
+      const ret_val = this.setState(brightness_object, this.updateSettings);
+      console.log("handleChangeBrightness: " + "brightness_setting_" + key + " " +
+          this.state.light_settings[key].brightness_setting);
+      return ret_val
     }.bind(this);
   }
 
-  handleChangeFlickerRate(pct_chg) {
-    return function (flicker_rate) {
-      const flicker_object = {};
-      flicker_object['flicker_setting_'
-                          + pct_chg] = flicker_rate.target.value;
-      this.updateSettings();
-      return this.setState(flicker_object);
+  handleChangeFlickerRate(key) {
+    return function (flicker) {
+      const flicker_object = Object.assign({}, this.state.light_settings);;
+      flicker_object[key].flicker_setting = flicker.target.value;
+      const ret_val = this.setState(flicker_object, this.updateSettings);
+      return ret_val;
     }.bind(this);
   }
 
@@ -221,6 +214,10 @@ class Landing extends React.Component {
     });
   }
 
+  handleMenuClick(e, { name }) {
+    this.setState({display: name})
+  }
+
   render() {
     return (
           <Grid celled verticalAlign='middle' textAlign='center' container>
@@ -232,218 +229,108 @@ class Landing extends React.Component {
               </Header>
             </Grid.Row>
 
-            <Grid.Row columns={2}>
+            <Grid.Row columns={1}>
               <Grid.Column>
-                <Table celled>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.HeaderCell colSpan='3' textAlign='center'>
-                      Light Settings
-                    </Table.HeaderCell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.HeaderCell width={3}>
-                      Percent Change <Icon name='line graph'/>
-                    </Table.HeaderCell>
-                    <Table.HeaderCell width={2}>
-                      Brightness <Icon name='lightbulb outline'/>
-                    </Table.HeaderCell>
-                    <Table.HeaderCell width={2}>
-                      Flicker Rate <Icon name='lightning'/>
-                    </Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
+                <Menu attached='top' tabular>
+                  <Menu.Item name='Light Settings' active={this.state.display === 'Light Settings'}
+                             onClick={this.handleMenuClick}/>
+                  <Menu.Item name='Coin Settings' active={this.state.display === 'Coin Settings'}
+                             onClick={this.handleMenuClick}/>
+                </Menu>
 
-                  <Table.Body>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>-10%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_neg_ten}
-                          onChange={this.handleChangeBrightness('neg_ten')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_neg_ten}
-                          onChange={this.handleChangeFlickerRate('neg_ten')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>-5%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_neg_five}
-                          onChange={this.handleChangeBrightness('neg_five')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_neg_five}
-                          onChange={this.handleChangeFlickerRate('neg_five')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>-2%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_neg_two}
-                          onChange={this.handleChangeBrightness('neg_two')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_neg_two}
-                          onChange={this.handleChangeFlickerRate('neg_two')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>-1%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_neg_one}
-                          onChange={this.handleChangeBrightness('neg_one')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_neg_one}
-                          onChange={this.handleChangeFlickerRate('neg_one')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>0%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_zero}
-                          onChange={this.handleChangeBrightness('zero')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_zero}
-                          onChange={this.handleChangeFlickerRate('zero')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>+1%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_pos_one}
-                          onChange={this.handleChangeBrightness('pos_one')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_pos_one}
-                          onChange={this.handleChangeFlickerRate('pos_one')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>+2%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_pos_two}
-                          onChange={this.handleChangeBrightness('pos_two')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_pos_two}
-                          onChange={this.handleChangeFlickerRate('pos_two')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>+5%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_pos_five}
-                          onChange={this.handleChangeBrightness('pos_five')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_pos_five}
-                          onChange={this.handleChangeFlickerRate('pos_five')} />
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell textAlign='center'>+10%</Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={1} max={10}
-                          value={this.state.brightness_setting_pos_ten}
-                          onChange={this.handleChangeBrightness('pos_ten')} />
-                      </Table.Cell>
-                      <Table.Cell>
-                        <input type='range' min={0} max={10}
-                          value={this.state.flicker_setting_pos_ten}
-                          onChange={this.handleChangeFlickerRate('pos_ten')} />
-                      </Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
-              </Grid.Column>
+                <Segment attached='bottom' style={this.state.display === 'Light Settings'? Object({display: 'block'}): Object({display: 'none'})}>
+                      <Table celled>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.HeaderCell width={3}>
+                            Percent Change <Icon name='line graph'/>
+                          </Table.HeaderCell>
+                          <Table.HeaderCell width={2}>
+                            Brightness <Icon name='lightbulb outline'/>
+                          </Table.HeaderCell>
+                          <Table.HeaderCell width={2}>
+                            Flicker Rate <Icon name='lightning'/>
+                          </Table.HeaderCell>
+                        </Table.Row>
+                      </Table.Header>
 
-              <Grid.Column>
+                      <Table.Body>
+                        {Object.keys(this.state.light_settings).map((key, index) =>
+                            <LightSetting key={key}
+                                          pct_chg={this.state.light_settings[key].pct_chg}
+                                          brightness_setting={this.state.light_settings[key].brightness}
+                                          flicker_setting={this.state.light_settings[key].flicker}
+                                          handleChangeBrightness={this.handleChangeBrightness(key)}
+                                          handleChangeFlicker={this.handleChangeFlickerRate(key)}
+                            />)}
+                      </Table.Body>
+                    </Table>
+                </Segment>
+
+                <Segment attached='bottom' style={this.state.display === 'Coin Settings'? Object({display: 'block'}): Object({display: 'none'})}>
                 <Table>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.HeaderCell colSpan='1' textAlign='center'>
-                        Coin Settings
-                      </Table.HeaderCell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.HeaderCell>
-                        Coin to Track <Icon name='dollar'/>
-                      </Table.HeaderCell>
-                    </Table.Row>
-                  </Table.Header>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.HeaderCell>
+                            Coin to Track <Icon name='dollar'/>
+                          </Table.HeaderCell>
+                        </Table.Row>
+                      </Table.Header>
 
-                  <Table.Body>
-                    <Table.Row>
-                      <Table.Cell>
-                        <Form>
-                          <Form.Field>
-                            Selected value: <b>{this.state.value}</b>
-                          </Form.Field>
-                          <Form.Field>
-                            <Radio
-                                label='BitCoin'
-                                name='radioGroup'
-                                value='BitCoin'
-                                checked={this.state.coin === 'BitCoin'}
-                                onChange={this.handleChangeCoin}
-                            />
-                          </Form.Field>
-                          <Form.Field>
-                            <Radio
-                                label='Ethereum'
-                                name='radioGroup'
-                                value='Ethereum'
-                                checked={this.state.coin === 'Ethereum'}
-                                onChange={this.handleChangeCoin}
-                            />
-                          </Form.Field>
-                          <Form.Field>
-                            <Radio
-                                label='Litecoin'
-                                name='radioGroup'
-                                value='Litecoin'
-                                checked={this.state.coin === 'Litecoin'}
-                                onChange={this.handleChangeCoin}
-                            />
-                          </Form.Field>
-                          <Form.Field>
-                            <Radio
-                                label='Bitcoin Cash'
-                                name='radioGroup'
-                                value='Bitcoin Cash'
-                                checked={this.state.coin === 'Bitcoin Cash'}
-                                onChange={this.handleChangeCoin}
-                            />
-                          </Form.Field>
-                        </Form>
-                      </Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
+                      <Table.Body>
+                        <Table.Row>
+                          <Table.Cell>
+                            <Form>
+                              <Form.Field>
+                                Selected value: <b>{this.state.value}</b>
+                              </Form.Field>
+                              <Form.Field>
+                                <Radio
+                                    label='BitCoin'
+                                    name='radioGroup'
+                                    value='BitCoin'
+                                    checked={this.state.coin === 'BitCoin'}
+                                    onChange={this.handleChangeCoin}
+                                />
+                              </Form.Field>
+                              <Form.Field>
+                                <Radio
+                                    label='Ethereum'
+                                    name='radioGroup'
+                                    value='Ethereum'
+                                    checked={this.state.coin === 'Ethereum'}
+                                    onChange={this.handleChangeCoin}
+                                />
+                              </Form.Field>
+                              <Form.Field>
+                                <Radio
+                                    label='Litecoin'
+                                    name='radioGroup'
+                                    value='Litecoin'
+                                    checked={this.state.coin === 'Litecoin'}
+                                    onChange={this.handleChangeCoin}
+                                />
+                              </Form.Field>
+                              <Form.Field>
+                                <Radio
+                                    label='Bitcoin Cash'
+                                    name='radioGroup'
+                                    value='Bitcoin Cash'
+                                    checked={this.state.coin === 'Bitcoin Cash'}
+                                    onChange={this.handleChangeCoin}
+                                />
+                              </Form.Field>
+                            </Form>
+                          </Table.Cell>
+                        </Table.Row>
+                      </Table.Body>
+                    </Table>
+                </Segment>
               </Grid.Column>
             </Grid.Row>
 
             <Grid.Row>
-              <Segment inverted>
+              <Segment inverted raised padded>
                 <Statistic inverted>
                   <Statistic.Value>{this.state.coin_value}</Statistic.Value>
                   <Statistic.Label>{this.state.coin} Value</Statistic.Label>
@@ -462,8 +349,6 @@ class Landing extends React.Component {
           </Grid>
     );
   }
-
-
 }
 
 export default Landing;
