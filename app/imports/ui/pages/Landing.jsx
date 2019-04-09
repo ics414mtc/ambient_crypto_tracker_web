@@ -10,6 +10,7 @@ import {
     Table,
     Range,
     Radio,
+    Image,
     Icon,
     Statistic,
     Segment,
@@ -99,6 +100,13 @@ class Landing extends React.Component {
 
             coin: 'Bitcoin',
 
+            coin_image_sources: {
+                Bitcoin: 'https://en.bitcoin.it/w/images/en/2/29/BC_Logo_.png',
+                Ethereum: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/628px-Ethereum_logo_2014.svg.png',
+                Litecoin: 'http://static1.squarespace.com/static/5a78883ba803bb706feafd92/t/5a7abe384192028e23fd111b/1517996289500/CUu4Xvk.jpg?format=1500w',
+                BitcoinCash: 'https://i.redd.it/nus982esrz901.png'
+            },
+
             display: 'Light Settings'
         };
 
@@ -143,7 +151,7 @@ class Landing extends React.Component {
                 case 'Litecoin':
                     index = 4;
                     break;
-                case  'Bitcoin Cash':
+                case  'BitcoinCash':
                     index = 5;
                     break;
                 default:
@@ -172,8 +180,10 @@ class Landing extends React.Component {
         console.log(closest_pct_chg);
         console.log(current_setting);
 
-        this.setState({current_brightness: current_setting.brightness_setting});
-        this.setState({current_flicker: current_setting.flicker_setting});
+        current_setting !== undefined? this.setState({current_brightness: current_setting.brightness_setting}):
+            this.setState({current_brightness: 1});
+        current_setting !== undefined? this.setState({current_flicker: current_setting.flicker_setting}):
+            this.setState({current_flicker: 0});
 
         console.log("updateSettings brightness " + this.state.current_brightness);
         console.log("updateSettings flicker " + this.state.current_flicker);
@@ -217,8 +227,7 @@ class Landing extends React.Component {
 
     /** Update the form controls each time the user interacts with them. */
     handleChangeCoin(e, {value}) {
-        this.updateCoin();
-        return this.setState({coin: value});
+        return this.setState({coin: value}, this.updateCoin);
     }
 
     /** Update the form controls each time the user interacts with them. */
@@ -241,7 +250,7 @@ class Landing extends React.Component {
             flicker_setting: Number(5),
             active: Boolean(false),
         });
-        this.setState({light_settings: setting_object});
+        this.setState({light_settings: setting_object}, this.updateSettings);
         this.formRef.reset();
         console.log(this.state);
     }
@@ -254,7 +263,7 @@ class Landing extends React.Component {
         return function () {
             const setting_object = Object.assign({}, this.state.light_settings);
             delete setting_object[key];
-            this.setState({light_settings: setting_object});
+            this.setState({light_settings: setting_object}, this.updateSettings);
         }.bind(this);
     }
 
@@ -262,7 +271,7 @@ class Landing extends React.Component {
         return function () {
             const setting_object = Object.assign({}, this.state.light_settings);
             setting_object[key].active = !setting_object[key].active;
-            this.setState(setting_object);
+            this.setState(setting_object, this.updateSettings);
         }.bind(this);
     }
 
@@ -292,7 +301,7 @@ class Landing extends React.Component {
                                 <Table.Header>
                                     <Table.Row>
                                         <Table.HeaderCell width={1}>
-                                            Active Settings <Icon name='play circle outline'/>
+                                            Setting State<Icon name='play circle outline'/>
                                         </Table.HeaderCell>
                                         <Table.HeaderCell width={1}>
                                             Percent Change <Icon name='line graph'/>
@@ -304,7 +313,7 @@ class Landing extends React.Component {
                                             Flicker Rate <Icon name='lightning'/>
                                         </Table.HeaderCell>
                                         <Table.HeaderCell width={1}>
-                                            Delete Settings <Icon name='delete'/>
+                                            Delete Setting <Icon name='delete'/>
                                         </Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Header>
@@ -326,6 +335,7 @@ class Landing extends React.Component {
 
                             <Container>
                                 <AutoForm ref={(ref) => { this.formRef = ref; }} schema={settingSchema} onSubmit={this.submit}>
+                                    <Header>Add a New Light Setting</Header>
                                     <Segment>
                                         <NumField name='pct_chg' label='Percent Change' decimal={false}/>
                                         <SubmitField value='Submit'/>
@@ -361,7 +371,7 @@ class Landing extends React.Component {
                                                         onChange={this.handleChangeCoin}
                                                     />
                                                     <Label as='a' image>
-                                                        <img src='https://en.bitcoin.it/w/images/en/2/29/BC_Logo_.png'/>
+                                                        <img src={this.state.coin_image_sources.Bitcoin}/>
                                                         Bitcoin
                                                     </Label>
                                                 </Form.Field>
@@ -373,7 +383,7 @@ class Landing extends React.Component {
                                                         onChange={this.handleChangeCoin}
                                                     />
                                                     <Label as='a' image>
-                                                        <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/628px-Ethereum_logo_2014.svg.png'/>
+                                                        <img src={this.state.coin_image_sources.Ethereum}/>
                                                         Ethereum
                                                     </Label>
                                                 </Form.Field>
@@ -385,19 +395,19 @@ class Landing extends React.Component {
                                                         onChange={this.handleChangeCoin}
                                                     />
                                                     <Label as='a' image>
-                                                        <img src='http://static1.squarespace.com/static/5a78883ba803bb706feafd92/t/5a7abe384192028e23fd111b/1517996289500/CUu4Xvk.jpg?format=1500w'/>
+                                                        <img src={this.state.coin_image_sources.Litecoin}/>
                                                         Litecoin
                                                     </Label>
                                                 </Form.Field>
                                                 <Form.Field>
                                                     <Radio
                                                         name='radioGroup'
-                                                        value='Bitcoin Cash'
-                                                        checked={this.state.coin === 'Bitcoin Cash'}
+                                                        value='BitcoinCash'
+                                                        checked={this.state.coin === 'BitcoinCash'}
                                                         onChange={this.handleChangeCoin}
                                                     />
                                                     <Label as='a' image>
-                                                        <img src='https://i.redd.it/nus982esrz901.png'/>
+                                                        <img src={this.state.coin_image_sources.BitcoinCash}/>
                                                         Bitcoin Cash
                                                     </Label>
                                                 </Form.Field>
@@ -413,7 +423,10 @@ class Landing extends React.Component {
                 <Grid.Row>
                     <Segment inverted raised padded>
                         <Statistic inverted>
-                            <Statistic.Value>{this.state.coin_value}</Statistic.Value>
+                            <Statistic.Value>
+                                <Image src={this.state.coin_image_sources[this.state.coin]} inline />
+                                {this.state.coin_value}
+                            </Statistic.Value>
                             <Statistic.Label>{this.state.coin} Value</Statistic.Label>
                         </Statistic>
                     </Segment>
