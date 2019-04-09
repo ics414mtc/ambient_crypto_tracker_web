@@ -5,7 +5,9 @@ class Charts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      chart: ''
+      chart: '',
+      changed: true,
+      currentCoin: ''
     };
     this.componentDidUpdate = this.componentDidUpdate.bind(this);
   }
@@ -29,8 +31,13 @@ class Charts extends React.Component {
         default:
             index = 0;
     }
+    console.log(this.props.coin);
     let that = this;
     setTimeout(() => {
+      if (this.props.coin != this.state.currentCoin) {
+        that.state.changed = true;
+      }
+      if (!that.state.changed) return;
       if (that.state.chart) {
         that.state.chart.destroy();
       }
@@ -58,6 +65,8 @@ class Charts extends React.Component {
             }
         }
       });
+      that.setState({changed: false});
+      that.setState({currentCoin: this.props.coin});
       that.setState({chart: myChart});
     }, 0);
   }
