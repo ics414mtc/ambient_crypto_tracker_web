@@ -1,22 +1,22 @@
-import {Meteor} from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import _ from 'underscore';
 import {
-    Grid,
-    Button,
-    Container,
-    Form,
-    Header,
-    Table,
-    Range,
-    Radio,
-    Image,
-    Icon,
-    Statistic,
-    Segment,
-    Menu,
-    Reveal,
-    Label
+  Grid,
+  Button,
+  Container,
+  Form,
+  Header,
+  Table,
+  Range,
+  Radio,
+  Image,
+  Icon,
+  Statistic,
+  Segment,
+  Menu,
+  Reveal,
+  Label
 } from 'semantic-ui-react';
 import LightSetting from '/imports/ui/components/LightSetting';
 import AutoForm from 'uniforms-semantic/AutoForm';
@@ -27,7 +27,7 @@ import SimpleSchema from 'simpl-schema';
 import Chart from '/imports/ui/components/Chart';
 
 const settingSchema = new SimpleSchema({
-    pct_chg: Number
+  pct_chg: Number
 });
 
 /** A simple static component to render some text for the landing page. */
@@ -123,6 +123,7 @@ class Landing extends React.Component {
         this.handleClick = this.handleClick.bind(this);
         this.submit = this.submit.bind(this);
         this.handleMenuClick = this.handleMenuClick.bind(this);
+        this.handleTimeChange = this.handleTimeChange.bind(this);
         this.handleActiveSettingClick = this.handleActiveSettingClick.bind(this);
         this.handleDeleteSettingClick = this.handleDeleteSettingClick.bind(this);
         this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
@@ -163,11 +164,32 @@ class Landing extends React.Component {
 
             const current_pct_chg = res.data[index].quote.USD.percent_change_7d;
 
+
+            let timeFrame = this.state.time;
+            if (this.state.time === null) {
+                timeFrame = 0;
+            }
+            console.log(timeFrame);
+            console.log(this.state.time);
+
+            switch (timeFrame) {
+                case 0:
+                    console.log("1h");
+                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_1h});
+                    break;
+                case 1:
+                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_24h});
+                    console.log("24h");
+                    break;
+                case 2:
+                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_7d});
+                    console.log("7d");
+                    break;
+            }
+
+            this.setState({ coin_value: res.data[index].quote.USD.price });
             this.setState({coin_value: res.data[index].quote.USD.price});
-            this.setState({current_pct_chg: current_pct_chg});
-
-            this.updateSettings();
-
+            this.setState({current_pct_chg: current_pct_chg}, this.updateSettings());
         }.bind(this));
     }
 
@@ -256,6 +278,10 @@ class Landing extends React.Component {
         this.setState({light_settings: setting_object}, this.updateSettings);
         this.formRef.reset();
         console.log(this.state);
+    }
+
+    handleTimeChange(e, { value }) {
+        return this.setState({ time: value }, this.updateCoin);
     }
 
     handleMenuClick(e, {name}) {
@@ -349,12 +375,15 @@ class Landing extends React.Component {
                         </Segment>
 
                         <Segment attached='bottom'
-                                 style={this.state.display === 'Coin Settings' ? Object({display: 'block'}) : Object({display: 'none'})}>
+                                 style={this.state.display === 'Coin Settings' ? Object({ display: 'block' }) : Object({ display: 'none' })}>
                             <Table>
                                 <Table.Header>
                                     <Table.Row>
                                         <Table.HeaderCell>
                                             Coin to Track <Icon name='dollar'/>
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Time Frame <Icon name='clock'/>
                                         </Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Header>
@@ -416,6 +445,40 @@ class Landing extends React.Component {
                                                 </Form.Field>
                                             </Form>
                                         </Table.Cell>
+                                        <Table.Cell>
+                                            <Form>
+                                                <Form.Field>
+                                                    Selected value: <b>{this.state.value}</b>
+                                                </Form.Field>
+                                                <Form.Field>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='0'
+                                                        checked={this.state.time === '0'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>1h</Label>
+                                                </Form.Field>
+                                                <Form.Field>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='1'
+                                                        checked={this.state.time === '1'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>24h</Label>
+                                                </Form.Field>
+                                                <Form.Field>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='2'
+                                                        checked={this.state.time === '2'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>7d</Label>
+                                                </Form.Field>
+                                            </Form>
+                                        </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
                             </Table>
@@ -427,29 +490,29 @@ class Landing extends React.Component {
                     <Chart coin={this.state.coin} data={this.state.data} />
                 </Grid.Row>
 
-                <Grid.Row>
-                    <Segment inverted raised padded>
-                        <Statistic inverted>
-                            <Statistic.Value>
-                                <Image src={this.state.coin_image_sources[this.state.coin]} inline />
-                                {this.state.coin_value}
-                            </Statistic.Value>
-                            <Statistic.Label>{this.state.coin} Value</Statistic.Label>
-                        </Statistic>
-                    </Segment>
-                </Grid.Row>
+          <Grid.Row>
+            <Segment inverted raised padded>
+              <Statistic inverted>
+                <Statistic.Value>
+                  <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
+                  {this.state.coin_value}
+                </Statistic.Value>
+                <Statistic.Label>{this.state.coin} Value</Statistic.Label>
+              </Statistic>
+            </Segment>
+          </Grid.Row>
 
-                <Grid.Row columns={1}>
-                    <Container fluid>
-                        <Button onClick={this.handleClick}>
-                            Switch Light Bulb On/Off
-                        </Button>
-                    </Container>
-                </Grid.Row>
+          <Grid.Row columns={1}>
+            <Container fluid>
+              <Button onClick={this.handleClick}>
+                Switch Light Bulb On/Off
+              </Button>
+            </Container>
+          </Grid.Row>
 
-            </Grid>
-        );
-    }
+        </Grid>
+    );
+  }
 }
 
 
