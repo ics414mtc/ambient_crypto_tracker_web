@@ -24,6 +24,7 @@ import NumField from 'uniforms-semantic/NumField';
 import SubmitField from 'uniforms-semantic/SubmitField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import SimpleSchema from 'simpl-schema';
+import Chart from '/imports/ui/components/Chart';
 
 const settingSchema = new SimpleSchema({
     pct_chg: Number
@@ -99,7 +100,6 @@ class Landing extends React.Component {
             coin_value: 0,
 
             coin: 'Bitcoin',
-
             coin_image_sources: {
                 Bitcoin: 'https://en.bitcoin.it/w/images/en/2/29/BC_Logo_.png',
                 Ethereum: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/628px-Ethereum_logo_2014.svg.png',
@@ -107,7 +107,9 @@ class Landing extends React.Component {
                 BitcoinCash: 'https://i.redd.it/nus982esrz901.png'
             },
 
-            display: 'Light Settings'
+            display: 'Light Settings',
+
+            data: []
         };
 
         this.formRef = null;
@@ -134,6 +136,7 @@ class Landing extends React.Component {
     updateCoin() {
         Meteor.call('request_daily_price', function (err, res) {
             res = JSON.parse(res);
+            this.setState({data: res.data});
             console.log(res.data);
 
             let current_brightness = 0;
@@ -421,6 +424,10 @@ class Landing extends React.Component {
                 </Grid.Row>
 
                 <Grid.Row>
+                    <Chart coin={this.state.coin} data={this.state.data} />
+                </Grid.Row>
+
+                <Grid.Row>
                     <Segment inverted raised padded>
                         <Statistic inverted>
                             <Statistic.Value>
@@ -444,5 +451,6 @@ class Landing extends React.Component {
         );
     }
 }
+
 
 export default Landing;
