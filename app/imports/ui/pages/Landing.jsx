@@ -162,27 +162,26 @@ class Landing extends React.Component {
                     index = 0;
             }
 
-            const current_pct_chg = res.data[index].quote.USD.percent_change_7d;
-
+            let current_pct_chg = 0;
 
             let timeFrame = this.state.time;
             if (this.state.time === null) {
                 timeFrame = 0;
             }
-            console.log(timeFrame);
-            console.log(this.state.time);
+            console.log("update coin time frame: " + timeFrame);
+            console.log("update coint this.state.time: " + this.state.time);
 
             switch (timeFrame) {
-                case 0:
+                case '0':
                     console.log("1h");
-                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_1h});
+                    current_pct_chg = res.data[index].quote.USD.percent_change_1h;
                     break;
-                case 1:
-                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_24h});
+                case '1':
+                    current_pct_chg = res.data[index].quote.USD.percent_change_24h;
                     console.log("24h");
                     break;
-                case 2:
-                    this.setState({ current_pct_chg: res.data[index].quote.USD.percent_change_7d});
+                case '2':
+                    current_pct_chg = res.data[index].quote.USD.percent_change_7d;
                     console.log("7d");
                     break;
             }
@@ -281,6 +280,7 @@ class Landing extends React.Component {
     }
 
     handleTimeChange(e, { value }) {
+        console.log('handleTimeChange: ' + value);
         return this.setState({ time: value }, this.updateCoin);
     }
 
