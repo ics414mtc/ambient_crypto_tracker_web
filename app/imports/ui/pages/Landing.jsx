@@ -18,6 +18,7 @@ import {
   Reveal,
   Label
 } from 'semantic-ui-react';
+// load math.js (using node.js)
 import LightSetting from '/imports/ui/components/LightSetting';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import NumField from 'uniforms-semantic/NumField';
@@ -306,7 +307,7 @@ class Landing extends React.Component {
 
     render() {
         return (
-            <Grid celled verticalAlign='middle' textAlign='center' container>
+            <Grid stackable celled verticalAlign='middle' textAlign='center' container>
 
                 <Grid.Row color='grey' stretched columns={1}>
                     <Header as='h1' textAlign='center'
@@ -315,8 +316,8 @@ class Landing extends React.Component {
                     </Header>
                 </Grid.Row>
 
-                <Grid.Row columns={1}>
-                    <Grid.Column>
+                <Grid.Row columns={2}>
+                    <Grid.Column width={9}>
                         <Menu attached='top' tabular>
                             <Menu.Item name='Light Settings' active={this.state.display === 'Light Settings'}
                                        onClick={this.handleMenuClick}/>
@@ -484,23 +485,25 @@ class Landing extends React.Component {
                             </Table>
                         </Segment>
                     </Grid.Column>
-                </Grid.Row>
 
-                <Grid.Row>
-                    <Chart coin={this.state.coin} data={this.state.data} />
-                </Grid.Row>
+                    <Grid.Column width={6}>
+                        <Grid.Row>
+                            <Chart coin={this.state.coin} data={this.state.data} />
+                        </Grid.Row>
 
-          <Grid.Row>
-            <Segment inverted raised padded>
-              <Statistic inverted>
-                <Statistic.Value>
-                  <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
-                  {this.state.coin_value}
-                </Statistic.Value>
-                <Statistic.Label>{this.state.coin} Value</Statistic.Label>
-              </Statistic>
-            </Segment>
-          </Grid.Row>
+                        <Grid.Row>
+                            <Segment inverted raised padded>
+                                <Statistic inverted>
+                                    <Statistic.Value>
+                                        <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
+                                        {Math.round(this.state.coin_value * 100) / 100}
+                                    </Statistic.Value>
+                                    <Statistic.Label>{this.state.coin} Value</Statistic.Label>
+                                </Statistic>
+                            </Segment>
+                        </Grid.Row>
+                    </Grid.Column>
+                </Grid.Row>
 
           <Grid.Row columns={1}>
             <Container fluid>
