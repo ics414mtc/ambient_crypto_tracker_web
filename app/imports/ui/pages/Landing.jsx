@@ -1,22 +1,23 @@
-import { Meteor } from 'meteor/meteor';
+import {Meteor} from 'meteor/meteor';
 import React from 'react';
 import _ from 'underscore';
 import {
-  Grid,
-  Button,
-  Container,
-  Form,
-  Header,
-  Table,
-  Range,
-  Radio,
-  Image,
-  Icon,
-  Statistic,
-  Segment,
-  Menu,
-  Reveal,
-  Label
+    Grid,
+    Button,
+    Container,
+    Form,
+    Header,
+    Table,
+    Range,
+    Radio,
+    Input,
+    Image,
+    Icon,
+    Statistic,
+    Segment,
+    Menu,
+    Reveal,
+    Label
 } from 'semantic-ui-react';
 // load math.js (using node.js)
 import LightSetting from '/imports/ui/components/LightSetting';
@@ -28,7 +29,27 @@ import SimpleSchema from 'simpl-schema';
 import Chart from '/imports/ui/components/Chart';
 
 const settingSchema = new SimpleSchema({
-  pct_chg: Number
+    pct_chg: Number
+});
+
+
+const customPortfolioSchema = new SimpleSchema({
+    Bitcoin: {
+        type: Number,
+        optional: true,
+        defaultValue: Number(0)},
+    Ethereum: {
+        type: Number,
+        optional: true,
+        defaultValue: Number(0)},
+    Litecoin: {
+        type: Number,
+        optional: true,
+        defaultValue: Number(0)},
+    BitcoinCash: {
+        type: Number,
+        optional: true,
+        defaultValue: Number(0)},
 });
 
 /** A simple static component to render some text for the landing page. */
@@ -108,12 +129,21 @@ class Landing extends React.Component {
                 BitcoinCash: 'https://i.redd.it/nus982esrz901.png'
             },
 
+            customPortfolio: {
+                active: false,
+                Bitcoin: Number(0),
+                Ethereum: Number(0),
+                Litecoin: Number(0),
+                BitcoinCash: Number(0),
+            },
+
             display: 'Light Settings',
 
             data: []
         };
 
         this.formRef = null;
+        this.coinFormRef = null;
 
         this.light_on = false;
         Meteor.call('discover', {}, (err) => {
@@ -126,8 +156,10 @@ class Landing extends React.Component {
         this.handleMenuClick = this.handleMenuClick.bind(this);
         this.handleTimeChange = this.handleTimeChange.bind(this);
         this.handleActiveSettingClick = this.handleActiveSettingClick.bind(this);
+        this.handleActiveCustomPortfolio = this.handleActiveCustomPortfolio.bind(this);
         this.handleDeleteSettingClick = this.handleDeleteSettingClick.bind(this);
         this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
+        this.submitChangePortfolio = this.submitChangePortfolio.bind(this);
         this.handleChangeCoin = this.handleChangeCoin.bind(this);
         this.componentWillMount = this.componentWillMount.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -187,7 +219,7 @@ class Landing extends React.Component {
                     break;
             }
 
-            this.setState({ coin_value: res.data[index].quote.USD.price });
+            this.setState({coin_value: res.data[index].quote.USD.price});
             this.setState({coin_value: res.data[index].quote.USD.price});
             this.setState({current_pct_chg: current_pct_chg}, this.updateSettings());
         }.bind(this));
@@ -205,9 +237,9 @@ class Landing extends React.Component {
         console.log(closest_pct_chg);
         console.log(current_setting);
 
-        current_setting !== undefined? this.setState({current_brightness: current_setting.brightness_setting}):
+        current_setting !== undefined ? this.setState({current_brightness: current_setting.brightness_setting}) :
             this.setState({current_brightness: 1});
-        current_setting !== undefined? this.setState({current_flicker: current_setting.flicker_setting}):
+        current_setting !== undefined ? this.setState({current_flicker: current_setting.flicker_setting}) :
             this.setState({current_flicker: 0});
 
         console.log("updateSettings brightness " + this.state.current_brightness);
@@ -230,6 +262,14 @@ class Landing extends React.Component {
         Meteor.clearInterval(this.intervalID);
     }
 
+    handleActiveCustomPortfolio() {
+        const active_object = Object.assign({}, this.state.customPortfolio);
+        active_object.active = !this.state.customPortfolio.active;
+        console.log("handleActiveCustomPortfolio: object: ");
+        console.log(active_object);
+        this.setState({customPortfolio: active_object});
+    }
+
     handleChangeBrightness(key) {
         return function (brightness) {
             const brightness_object = Object.assign({}, this.state.light_settings);
@@ -239,6 +279,15 @@ class Landing extends React.Component {
                 this.state.light_settings[key].brightness_setting);
             return ret_val
         }.bind(this);
+    }
+
+    submitChangePortfolio(data){
+        const portfolio = data;
+        const portfolio_object = Object.assign({}, this.state.customPortfolio);
+        // TODO
+        // for each key in data update portfolio_object.key to new value
+        console.log("submitChangePortfolio: data: ");
+        console.log(data);
     }
 
     handleChangeFlickerRate(key) {
@@ -267,7 +316,7 @@ class Landing extends React.Component {
     }
 
     submit(data) {
-        const { pct_chg } = data;
+        const {pct_chg} = data;
         const setting_object = Object.assign({}, this.state.light_settings);
         setting_object[pct_chg] = Object({
             pct_chg: Number(pct_chg),
@@ -280,13 +329,13 @@ class Landing extends React.Component {
         console.log(this.state);
     }
 
-    handleTimeChange(e, { value }) {
+    handleTimeChange(e, {value}) {
         console.log('handleTimeChange: ' + value);
-        return this.setState({ time: value }, this.updateCoin);
+        return this.setState({time: value}, this.updateCoin);
     }
 
     handleMenuClick(e, {name}) {
-        this.setState({display: name})
+        this.setState({display: name});
     }
 
     handleDeleteSettingClick(key) {
@@ -364,7 +413,9 @@ class Landing extends React.Component {
                             </Table>
 
                             <Container>
-                                <AutoForm ref={(ref) => { this.formRef = ref; }} schema={settingSchema} onSubmit={this.submit}>
+                                <AutoForm ref={(ref) => {
+                                    this.formRef = ref;
+                                }} schema={settingSchema} onSubmit={this.submit}>
                                     <Header>Add a New Light Setting</Header>
                                     <Segment>
                                         <NumField name='pct_chg' label='Percent Change' decimal={false}/>
@@ -376,9 +427,14 @@ class Landing extends React.Component {
                         </Segment>
 
                         <Segment attached='bottom'
-                                 style={this.state.display === 'Coin Settings' ? Object({ display: 'block' }) : Object({ display: 'none' })}>
+                                 style={this.state.display === 'Coin Settings' ? Object({display: 'block'}) : Object({display: 'none'})}>
                             <Table>
                                 <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan='2'>
+                                            Track Single Coin
+                                        </Table.HeaderCell>
+                                    </Table.Row>
                                     <Table.Row>
                                         <Table.HeaderCell>
                                             Coin to Track <Icon name='dollar'/>
@@ -393,10 +449,10 @@ class Landing extends React.Component {
                                     <Table.Row>
                                         <Table.Cell>
                                             <Form>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     Selected value: <b>{this.state.value}</b>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='Bitcoin'
@@ -408,7 +464,7 @@ class Landing extends React.Component {
                                                         Bitcoin
                                                     </Label>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='Ethereum'
@@ -420,7 +476,7 @@ class Landing extends React.Component {
                                                         Ethereum
                                                     </Label>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='Litecoin'
@@ -432,7 +488,7 @@ class Landing extends React.Component {
                                                         Litecoin
                                                     </Label>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='BitcoinCash'
@@ -448,10 +504,10 @@ class Landing extends React.Component {
                                         </Table.Cell>
                                         <Table.Cell>
                                             <Form>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     Selected value: <b>{this.state.value}</b>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='0'
@@ -460,7 +516,7 @@ class Landing extends React.Component {
                                                     />
                                                     <Label>1h</Label>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='1'
@@ -469,7 +525,7 @@ class Landing extends React.Component {
                                                     />
                                                     <Label>24h</Label>
                                                 </Form.Field>
-                                                <Form.Field>
+                                                <Form.Field disabled={this.state.customPortfolio.active}>
                                                     <Radio
                                                         name='radioGroup'
                                                         value='2'
@@ -482,13 +538,144 @@ class Landing extends React.Component {
                                         </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
+
+                                <Table.Footer fullWidth>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan='2'>
+                                            <Button active={!this.state.customPortfolio.active}
+                                                    color={!this.state.customPortfolio.active ? 'green' : 'grey'}
+                                                    onClick={this.handleActiveCustomPortfolio}
+                                                    compact>
+                                                {!this.state.customPortfolio.active ? 'Active' : 'Disabled'}
+                                            </Button>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
+                            </Table>
+
+                            <Table>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan='2'>
+                                            Track Custom Portfolio
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                    <Table.Row>
+                                        <Table.HeaderCell>
+                                            Portfolio Coin Amounts <Icon name='dollar'/>
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Time Frame <Icon name='clock'/>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+
+                                <Table.Body>
+                                    <Table.Row>
+                                        <Table.Cell>
+                                            <AutoForm ref={(ref) => {
+                                                this.coinFormRef = ref;
+                                            }} schema={customPortfolioSchema}
+                                                      onSubmit={this.submitChangePortfolio}>
+                                                <Segment>
+                                                    <NumField name='Bitcoin'
+                                                              label={<Label as='a' image>
+                                                                  <img src={this.state.coin_image_sources.Bitcoin}/>
+                                                                  Bitcoin
+                                                              </Label>}
+                                                              decimal={true}
+                                                              placeholder='0'
+                                                              disabled={!this.state.customPortfolio.active}>
+                                                    </NumField>
+                                                    <NumField name='Ethereum'
+                                                              label={<Label as='a' image>
+                                                                  <img src={this.state.coin_image_sources.Ethereum}/>
+                                                                  Ethereum
+                                                              </Label>}
+                                                              decimal={true}
+                                                              placeholder='0'
+                                                              disabled={!this.state.customPortfolio.active}>
+                                                    </NumField>
+                                                    <NumField name='Litecoin'
+                                                              label={<Label as='a' image>
+                                                                  <img src={this.state.coin_image_sources.Litecoin}/>
+                                                                  Litecoin
+                                                              </Label>}
+                                                              decimal={true}
+                                                              placeholder='0'
+                                                              disabled={!this.state.customPortfolio.active}>
+                                                    </NumField>
+                                                    <NumField name='BitcoinCash'
+                                                              label={<Label as='a' image>
+                                                                  <img src={this.state.coin_image_sources.BitcoinCash}/>
+                                                                  Bitcoin Cash
+                                                              </Label>}
+                                                              decimal={true}
+                                                              placeholder='0'
+                                                              disabled={!this.state.customPortfolio.active}>
+                                                    </NumField>
+                                                    <SubmitField value='Submit'
+                                                                 disabled={!this.state.customPortfolio.active}/>
+                                                    <ErrorsField/>
+                                                </Segment>
+                                            </AutoForm>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <Form>
+                                                <Form.Field disabled={!this.state.customPortfolio.active}>
+                                                    Selected value: <b>{this.state.value}</b>
+                                                </Form.Field>
+                                                <Form.Field disabled={!this.state.customPortfolio.active}>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='0'
+                                                        checked={this.state.time === '0'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>1h</Label>
+                                                </Form.Field>
+                                                <Form.Field disabled={!this.state.customPortfolio.active}>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='1'
+                                                        checked={this.state.time === '1'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>24h</Label>
+                                                </Form.Field>
+                                                <Form.Field disabled={!this.state.customPortfolio.active}>
+                                                    <Radio
+                                                        name='radioGroup'
+                                                        value='2'
+                                                        checked={this.state.time === '2'}
+                                                        onChange={this.handleTimeChange}
+                                                    />
+                                                    <Label>7d</Label>
+                                                </Form.Field>
+                                            </Form>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+
+                                <Table.Footer fullWidth>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan='2'>
+                                            <Button active={this.state.customPortfolio.active}
+                                                    color={this.state.customPortfolio.active ? 'green' : 'grey'}
+                                                    onClick={this.handleActiveCustomPortfolio}
+                                                    compact>
+                                                {this.state.customPortfolio.active ? 'Active' : 'Disabled'}
+                                            </Button>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
                             </Table>
                         </Segment>
                     </Grid.Column>
 
                     <Grid.Column width={6}>
                         <Grid.Row>
-                            <Chart coin={this.state.coin} data={this.state.data} />
+                            <Chart coin={this.state.coin} data={this.state.data}/>
                         </Grid.Row>
 
                         <Grid.Row>
@@ -505,18 +692,18 @@ class Landing extends React.Component {
                     </Grid.Column>
                 </Grid.Row>
 
-          <Grid.Row columns={1}>
-            <Container fluid>
-              <Button onClick={this.handleClick}>
-                Switch Light Bulb On/Off
-              </Button>
-            </Container>
-          </Grid.Row>
+                <Grid.Row columns={1}>
+                    <Container fluid>
+                        <Button onClick={this.handleClick}>
+                            Switch Light Bulb On/Off
+                        </Button>
+                    </Container>
+                </Grid.Row>
 
-        </Grid>
+            </Grid>
     );
-  }
-}
+    }
+    }
 
 
-export default Landing;
+    export default Landing;
