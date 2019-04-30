@@ -27,30 +27,7 @@ import SubmitField from 'uniforms-semantic/SubmitField';
 import ErrorsField from 'uniforms-semantic/ErrorsField';
 import SimpleSchema from 'simpl-schema';
 import Chart from '/imports/ui/components/Chart';
-
-const settingSchema = new SimpleSchema({
-    pct_chg: Number
-});
-
-
-const customPortfolioSchema = new SimpleSchema({
-    Bitcoin: {
-        type: Number,
-        optional: true,
-        defaultValue: Number(0)},
-    Ethereum: {
-        type: Number,
-        optional: true,
-        defaultValue: Number(0)},
-    Litecoin: {
-        type: Number,
-        optional: true,
-        defaultValue: Number(0)},
-    BitcoinCash: {
-        type: Number,
-        optional: true,
-        defaultValue: Number(0)},
-});
+import Settings from './Settings';
 
 /** A simple static component to render some text for the landing page. */
 class Landing extends React.Component {
@@ -157,12 +134,13 @@ class Landing extends React.Component {
         this.submit = this.submit.bind(this);
         this.handleMenuClick = this.handleMenuClick.bind(this);
         this.handleTimeChange = this.handleTimeChange.bind(this);
-        this.handleActiveSettingClick = this.handleActiveSettingClick.bind(this);
         this.handleActiveCustomPortfolio = this.handleActiveCustomPortfolio.bind(this);
-        this.handleDeleteSettingClick = this.handleDeleteSettingClick.bind(this);
-        this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
         this.submitChangePortfolio = this.submitChangePortfolio.bind(this);
         this.handleChangeCoin = this.handleChangeCoin.bind(this);
+        this.handleChangeBrightness = this.handleChangeBrightness.bind(this);
+        this.handleChangeFlickerRate = this.handleChangeFlickerRate.bind(this);
+        this.handleActiveSettingClick = this.handleActiveSettingClick.bind(this);
+        this.handleDeleteSettingClick = this.handleDeleteSettingClick.bind(this);
         this.componentWillMount = this.componentWillMount.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.updateCoin = this.updateCoin.bind(this);
@@ -275,17 +253,6 @@ class Landing extends React.Component {
         this.setState({customPortfolio: active_object});
     }
 
-    handleChangeBrightness(key) {
-        return function (brightness) {
-            const brightness_object = Object.assign({}, this.state.light_settings);
-            brightness_object[key].brightness_setting = brightness.target.value;
-            const ret_val = this.setState(brightness_object, this.updateSettings);
-            console.log("handleChangeBrightness: " + "brightness_setting_" + key + " " +
-                this.state.light_settings[key].brightness_setting);
-            return ret_val
-        }.bind(this);
-    }
-
     submitChangePortfolio(data){
         const portfolio = data;
         const portfolio_object = Object.assign({}, this.state.customPortfolio);
@@ -294,7 +261,6 @@ class Landing extends React.Component {
         console.log("submitChangePortfolio: data: ");
         console.log(data);
     }
-
     handleChangeFlickerRate(key) {
         return function (flicker) {
             const flicker_object = Object.assign({}, this.state.light_settings);
@@ -307,6 +273,16 @@ class Landing extends React.Component {
     /** Update the form controls each time the user interacts with them. */
     handleChangeCoin(e, {value}) {
         return this.setState({coin: value}, this.updateCoin);
+    }
+    handleChangeBrightness(key) {
+        return function (brightness) {
+            const brightness_object = Object.assign({}, this.state.light_settings);
+            brightness_object[key].brightness_setting = brightness.target.value;
+            const ret_val = this.setState(brightness_object, this.updateSettings);
+            console.log("handleChangeBrightness: " + "brightness_setting_" + key + " " +
+                this.state.light_settings[key].brightness_setting);
+            return ret_val
+        }.bind(this);
     }
 
     /** Update the form controls each time the user interacts with them. */
@@ -333,14 +309,12 @@ class Landing extends React.Component {
         this.formRef.reset();
         console.log(this.state);
     }
-
-    handleTimeChange(e, {value}) {
-        console.log('handleTimeChange: ' + value);
-        return this.setState({time: value}, this.updateCoin);
-    }
-
-    handleMenuClick(e, {name}) {
-        this.setState({display: name});
+    handleActiveSettingClick(key) {
+        return function () {
+            const setting_object = Object.assign({}, this.state.light_settings);
+            setting_object[key].active = !setting_object[key].active;
+            this.setState(setting_object, this.updateSettings);
+        }.bind(this);
     }
 
     handleDeleteSettingClick(key) {
@@ -351,12 +325,13 @@ class Landing extends React.Component {
         }.bind(this);
     }
 
-    handleActiveSettingClick(key) {
-        return function () {
-            const setting_object = Object.assign({}, this.state.light_settings);
-            setting_object[key].active = !setting_object[key].active;
-            this.setState(setting_object, this.updateSettings);
-        }.bind(this);
+    handleTimeChange(e, {value}) {
+        console.log('handleTimeChange: ' + value);
+        return this.setState({time: value}, this.updateCoin);
+    }
+
+    handleMenuClick(e, {name}) {
+        this.setState({display: name});
     }
 
     render() {
@@ -370,377 +345,19 @@ class Landing extends React.Component {
                     </Header>
                 </Grid.Row>
 
-                <Grid.Row columns={2}>
-                    <Grid.Column width={9}>
-                        <Menu attached='top' tabular>
-                            <Menu.Item name='Light Settings' active={this.state.display === 'Light Settings'}
-                                       onClick={this.handleMenuClick}/>
-                            <Menu.Item name='Coin Settings' active={this.state.display === 'Coin Settings'}
-                                       onClick={this.handleMenuClick}/>
-                        </Menu>
-
-                        <Segment attached='bottom'
-                                 style={this.state.display === 'Light Settings' ? Object({display: 'block'}) : Object({display: 'none'})}>
-                            <Table celled>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell width={1}>
-                                            Setting State<Icon name='play circle outline'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell width={1}>
-                                            Percent Change <Icon name='line graph'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell width={1}>
-                                            Brightness <Icon name='lightbulb outline'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell width={1}>
-                                            Flicker Rate <Icon name='lightning'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell width={1}>
-                                            Delete Setting <Icon name='delete'/>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    {Object.keys(this.state.light_settings).map((key, index) =>
-                                        <LightSetting key={key}
-                                                      pct_chg={this.state.light_settings[key].pct_chg}
-                                                      brightness_setting={this.state.light_settings[key].brightness}
-                                                      flicker_setting={this.state.light_settings[key].flicker}
-                                                      active={this.state.light_settings[key].active}
-                                                      handleChangeBrightness={this.handleChangeBrightness(key)}
-                                                      handleChangeFlicker={this.handleChangeFlickerRate(key)}
-                                                      activateButtonOnClick={this.handleActiveSettingClick(key)}
-                                                      deleteButtonOnClick={this.handleDeleteSettingClick(key)}
-                                        />)}
-                                </Table.Body>
-                            </Table>
-
-                            <Container>
-                                <AutoForm ref={(ref) => {
-                                    this.formRef = ref;
-                                }} schema={settingSchema} onSubmit={this.submit}>
-                                    <Header>Add a New Light Setting</Header>
-                                    <Segment>
-                                        <NumField name='pct_chg' label='Percent Change' decimal={false}/>
-                                        <SubmitField value='Submit'/>
-                                        <ErrorsField/>
-                                    </Segment>
-                                </AutoForm>
-                            </Container>
-                        </Segment>
-
-                        <Segment attached='bottom'
-                                 style={this.state.display === 'Coin Settings' ? Object({display: 'block'}) : Object({display: 'none'})}>
-                            <Table>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell colSpan='2'>
-                                            Track Single Coin
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                    <Table.Row>
-                                        <Table.HeaderCell>
-                                            Coin to Track <Icon name='dollar'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell>
-                                            Time Frame <Icon name='clock'/>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <Form>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    Selected value: <b>{this.state.value}</b>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='Bitcoin'
-                                                        checked={this.state.coin === 'Bitcoin'}
-                                                        onChange={this.handleChangeCoin}
-                                                    />
-                                                    <Label as='a' image>
-                                                        <img src={this.state.coin_image_sources.Bitcoin}/>
-                                                        Bitcoin
-                                                    </Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='Ethereum'
-                                                        checked={this.state.coin === 'Ethereum'}
-                                                        onChange={this.handleChangeCoin}
-                                                    />
-                                                    <Label as='a' image>
-                                                        <img src={this.state.coin_image_sources.Ethereum}/>
-                                                        Ethereum
-                                                    </Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='Litecoin'
-                                                        checked={this.state.coin === 'Litecoin'}
-                                                        onChange={this.handleChangeCoin}
-                                                    />
-                                                    <Label as='a' image>
-                                                        <img src={this.state.coin_image_sources.Litecoin}/>
-                                                        Litecoin
-                                                    </Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='BitcoinCash'
-                                                        checked={this.state.coin === 'BitcoinCash'}
-                                                        onChange={this.handleChangeCoin}
-                                                    />
-                                                    <Label as='a' image>
-                                                        <img src={this.state.coin_image_sources.BitcoinCash}/>
-                                                        Bitcoin Cash
-                                                    </Label>
-                                                </Form.Field>
-                                            </Form>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <Form>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    Selected value: <b>{this.state.value}</b>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='0'
-                                                        checked={this.state.time === '0'}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>1h</Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='1'
-                                                        checked={this.state.time === '1'}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>24h</Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='2'
-                                                        checked={this.state.time === '2'}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>7d</Label>
-                                                </Form.Field>
-                                            </Form>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-
-                                <Table.Footer fullWidth>
-                                    <Table.Row>
-                                        <Table.HeaderCell colSpan='2'>
-                                            <Button active={!this.state.customPortfolio.active}
-                                                    color={!this.state.customPortfolio.active ? 'green' : 'grey'}
-                                                    onClick={this.handleActiveCustomPortfolio}
-                                                    compact>
-                                                {!this.state.customPortfolio.active ? 'Active' : 'Disabled'}
-                                            </Button>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Footer>
-                            </Table>
-
-                            <Table>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell colSpan='2'>
-                                            Track Custom Portfolio
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                    <Table.Row>
-                                        <Table.HeaderCell>
-                                            Portfolio Coin Amounts <Icon name='dollar'/>
-                                        </Table.HeaderCell>
-                                        <Table.HeaderCell>
-                                            Time Frame <Icon name='clock'/>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <AutoForm ref={(ref) => {
-                                                this.coinFormRef = ref;
-                                            }} schema={customPortfolioSchema}
-                                                      onSubmit={this.submitChangePortfolio}>
-                                                <Segment>
-                                                    <NumField name='Bitcoin'
-                                                              label={<Label as='a' image>
-                                                                  <img src={this.state.coin_image_sources.Bitcoin}/>
-                                                                  Bitcoin
-                                                              </Label>}
-                                                              decimal={true}
-                                                              placeholder='0'
-                                                              disabled={!this.state.customPortfolio.active}>
-                                                    </NumField>
-                                                    <NumField name='Ethereum'
-                                                              label={<Label as='a' image>
-                                                                  <img src={this.state.coin_image_sources.Ethereum}/>
-                                                                  Ethereum
-                                                              </Label>}
-                                                              decimal={true}
-                                                              placeholder='0'
-                                                              disabled={!this.state.customPortfolio.active}>
-                                                    </NumField>
-                                                    <NumField name='Litecoin'
-                                                              label={<Label as='a' image>
-                                                                  <img src={this.state.coin_image_sources.Litecoin}/>
-                                                                  Litecoin
-                                                              </Label>}
-                                                              decimal={true}
-                                                              placeholder='0'
-                                                              disabled={!this.state.customPortfolio.active}>
-                                                    </NumField>
-                                                    <NumField name='BitcoinCash'
-                                                              label={<Label as='a' image>
-                                                                  <img src={this.state.coin_image_sources.BitcoinCash}/>
-                                                                  Bitcoin Cash
-                                                              </Label>}
-                                                              decimal={true}
-                                                              placeholder='0'
-                                                              disabled={!this.state.customPortfolio.active}>
-                                                    </NumField>
-                                                    <SubmitField value='Submit'
-                                                                 disabled={!this.state.customPortfolio.active}/>
-                                                    <ErrorsField/>
-                                                </Segment>
-                                            </AutoForm>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            <Form>
-                                                <Form.Field disabled={!this.state.customPortfolio.active}>
-                                                    Selected value: <b>{this.state.value}</b>
-                                                </Form.Field>
-                                                <Form.Field disabled={!this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='0'
-                                                        checked={this.state.time === 0}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>1h</Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={!this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='1'
-                                                        checked={this.state.time === 1}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>24h</Label>
-                                                </Form.Field>
-                                                <Form.Field disabled={!this.state.customPortfolio.active}>
-                                                    <Radio
-                                                        name='radioGroup'
-                                                        value='2'
-                                                        checked={this.state.time === 2}
-                                                        onChange={this.handleTimeChange}
-                                                    />
-                                                    <Label>7d</Label>
-                                                </Form.Field>
-                                            </Form>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-
-                                <Table.Footer fullWidth>
-                                    <Table.Row>
-                                        <Table.HeaderCell colSpan='2'>
-                                            <Button active={this.state.customPortfolio.active}
-                                                    color={this.state.customPortfolio.active ? 'green' : 'grey'}
-                                                    onClick={this.handleActiveCustomPortfolio}
-                                                    compact>
-                                                {this.state.customPortfolio.active ? 'Active' : 'Disabled'}
-                                            </Button>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Footer>
-                            </Table>
-                        </Segment>
-                    </Grid.Column>
-
-                    <Grid.Column width={6}>
-
-                        <Label size="huge">
-                          Current Settings
-                        </Label>
-
-                        <Grid.Row>
-                          <Statistic>
-                            <Statistic.Label>
-                              Coin: {this.state.coin}
-                            </Statistic.Label>
-                          </Statistic>
-                        </Grid.Row>
-
-                      <Grid.Row>
-                        <Statistic>
-                          <Statistic.Label>
-                            Time Frame: {this.state.timeString}
-                          </Statistic.Label>
-                        </Statistic>
-                      </Grid.Row>
-
-                        <Grid.Row>
-                          <Statistic>
-                            <Statistic.Label>
-                              Percent Change: {Math.round(this.state.current_pct_chg) + "%"}
-                            </Statistic.Label>
-                          </Statistic>
-                        </Grid.Row>
-
-                      <Grid.Row>
-                        <Statistic>
-                          <Statistic.Label>
-                            Brightness: {this.state.current_brightness}
-                          </Statistic.Label>
-                        </Statistic>
-                      </Grid.Row>
-
-                      <Grid.Row>
-                        <Statistic>
-                          <Statistic.Label>
-                            Flicker Rate: {this.state.current_flicker}
-                          </Statistic.Label>
-                        </Statistic>
-                      </Grid.Row>
-
-                        <Grid.Row>
-                            <Chart coin={this.state.coin} data={this.state.data}/>
-                        </Grid.Row>
-
-                        <Grid.Row>
-                            <Segment inverted raised padded>
-                                <Statistic inverted>
-                                    <Statistic.Value>
-                                        <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
-                                        {Math.round(this.state.coin_value * 100) / 100}
-                                    </Statistic.Value>
-                                    <Statistic.Label>{this.state.coin} Value</Statistic.Label>
-                                </Statistic>
-                            </Segment>
-                        </Grid.Row>
-                    </Grid.Column>
-                </Grid.Row>
+                <Settings 
+                    handleDeleteSettingClick={this.handleDeleteSettingClick} 
+                    handleActiveSettingClick={this.handleActiveSettingClick} 
+                    handleChangeFlickerRate={this.handleChangeFlickerRate} 
+                    handleChangeBrightness={this.handleChangeBrightness} 
+                    handleMenuClick={this.handleMenuClick} 
+                    handleChangeCoin={this.handleChangeCoin}
+                    handleTimeChange={this.handleTimeChange}
+                    handleActiveCustomPortfolio={this.handleActiveCustomPortfolio}
+                    submitChangePortfolio={this.submitChangePortfolio}
+                    submit={this.submit}
+                    state={this.state} 
+                />
 
                 <Grid.Row columns={1}>
                     <Container fluid>
