@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 class LightSetting extends React.Component {
     render() {
         return (
-            <Table.Row>
+            <Table.Row positive={this.props.pct_chg === this.props.current_pct_chg}>
                 <Table.Cell>
                     <Button active={this.props.active}
                             color={this.props.active ? 'green' : 'grey'}
@@ -37,6 +37,7 @@ class LightSetting extends React.Component {
 /** Declare the types of all properties. */
 LightSetting.propTypes = {
     pct_chg: PropTypes.number,
+    current_pct_chg: PropTypes.number,
     brightness_setting: PropTypes.number,
     flicker_setting: PropTypes.number,
     active: PropTypes.bool,

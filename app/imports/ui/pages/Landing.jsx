@@ -118,6 +118,7 @@ class Landing extends React.Component {
             current_flicker: 5,
             current_brightness: 5,
             current_pct_chg: 0,
+            closest_pct_chg: 0,
             time: 0,
             timeString: '1H',
 
@@ -236,6 +237,8 @@ class Landing extends React.Component {
         const closest_pct_chg = _.reduce(pct_chgs, (prev, curr) =>
             Math.abs(curr - this.state.current_pct_chg) < Math.abs(prev - this.state.current_pct_chg) ? curr : prev);
         const current_setting = _.find(this.state.light_settings, (setting) => setting.pct_chg == closest_pct_chg);
+
+        this.state.closest_pct_chg = closest_pct_chg;
 
         console.log(pct_chgs);
         console.log(this.state.current_pct_chg);
@@ -406,6 +409,7 @@ class Landing extends React.Component {
                                     {Object.keys(this.state.light_settings).map((key, index) =>
                                         <LightSetting key={key}
                                                       pct_chg={this.state.light_settings[key].pct_chg}
+                                                      current_pct_chg={Math.round(this.state.current_pct_chg)}
                                                       brightness_setting={this.state.light_settings[key].brightness}
                                                       flicker_setting={this.state.light_settings[key].flicker}
                                                       active={this.state.light_settings[key].active}
