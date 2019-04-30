@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.3.1",
+    "bcrypt": "^3.0.6",
     "chart": "^0.1.2",
     "chart.js": "^2.8.0",
     "classnames": "^2.2.6",
