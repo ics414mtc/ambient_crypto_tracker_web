@@ -118,6 +118,8 @@ class Landing extends React.Component {
             current_flicker: 5,
             current_brightness: 5,
             current_pct_chg: 0,
+            time: 0,
+            timeString: '1H',
 
             coin_value: 0,
 
@@ -200,6 +202,7 @@ class Landing extends React.Component {
             let timeFrame = this.state.time;
             if (this.state.time === null) {
                 timeFrame = 0;
+                this.state.time = 0;
             }
             console.log("update coin time frame: " + timeFrame);
             console.log("update coint this.state.time: " + this.state.time);
@@ -207,19 +210,21 @@ class Landing extends React.Component {
             switch (timeFrame) {
                 case '0':
                     console.log("1h");
+                    this.state.timeString = "1h";
                     current_pct_chg = res.data[index].quote.USD.percent_change_1h;
                     break;
                 case '1':
                     current_pct_chg = res.data[index].quote.USD.percent_change_24h;
+                    this.state.timeString = "24h";
                     console.log("24h");
                     break;
                 case '2':
                     current_pct_chg = res.data[index].quote.USD.percent_change_7d;
+                    this.state.timeString = "7d";
                     console.log("7d");
                     break;
             }
 
-            this.setState({coin_value: res.data[index].quote.USD.price});
             this.setState({coin_value: res.data[index].quote.USD.price});
             this.setState({current_pct_chg: current_pct_chg}, this.updateSettings());
         }.bind(this));
@@ -229,8 +234,8 @@ class Landing extends React.Component {
         const active_light_settings = _.where(this.state.light_settings, {active: true})
         const pct_chgs = _.pluck(active_light_settings, 'pct_chg');
         const closest_pct_chg = _.reduce(pct_chgs, (prev, curr) =>
-            Math.abs(curr - this.state.current_pct_chg) < Math.abs(prev - this.state.current_pct_chg) ? curr : prev)
-        const current_setting = _.find(this.state.light_settings, (setting) => setting.pct_chg == closest_pct_chg)
+            Math.abs(curr - this.state.current_pct_chg) < Math.abs(prev - this.state.current_pct_chg) ? curr : prev);
+        const current_setting = _.find(this.state.light_settings, (setting) => setting.pct_chg == closest_pct_chg);
 
         console.log(pct_chgs);
         console.log(this.state.current_pct_chg);
@@ -629,7 +634,7 @@ class Landing extends React.Component {
                                                     <Radio
                                                         name='radioGroup'
                                                         value='0'
-                                                        checked={this.state.time === '0'}
+                                                        checked={this.state.time === 0}
                                                         onChange={this.handleTimeChange}
                                                     />
                                                     <Label>1h</Label>
@@ -638,7 +643,7 @@ class Landing extends React.Component {
                                                     <Radio
                                                         name='radioGroup'
                                                         value='1'
-                                                        checked={this.state.time === '1'}
+                                                        checked={this.state.time === 1}
                                                         onChange={this.handleTimeChange}
                                                     />
                                                     <Label>24h</Label>
@@ -647,7 +652,7 @@ class Landing extends React.Component {
                                                     <Radio
                                                         name='radioGroup'
                                                         value='2'
-                                                        checked={this.state.time === '2'}
+                                                        checked={this.state.time === 2}
                                                         onChange={this.handleTimeChange}
                                                     />
                                                     <Label>7d</Label>
@@ -674,6 +679,51 @@ class Landing extends React.Component {
                     </Grid.Column>
 
                     <Grid.Column width={6}>
+
+                        <Label size="huge">
+                          Current Settings
+                        </Label>
+
+                        <Grid.Row>
+                          <Statistic>
+                            <Statistic.Label>
+                              Coin: {this.state.coin}
+                            </Statistic.Label>
+                          </Statistic>
+                        </Grid.Row>
+
+                      <Grid.Row>
+                        <Statistic>
+                          <Statistic.Label>
+                            Time Frame: {this.state.timeString}
+                          </Statistic.Label>
+                        </Statistic>
+                      </Grid.Row>
+
+                        <Grid.Row>
+                          <Statistic>
+                            <Statistic.Label>
+                              Percent Change: {Math.round(this.state.current_pct_chg) + "%"}
+                            </Statistic.Label>
+                          </Statistic>
+                        </Grid.Row>
+
+                      <Grid.Row>
+                        <Statistic>
+                          <Statistic.Label>
+                            Brightness: {this.state.current_brightness}
+                          </Statistic.Label>
+                        </Statistic>
+                      </Grid.Row>
+
+                      <Grid.Row>
+                        <Statistic>
+                          <Statistic.Label>
+                            Flicker Rate: {this.state.current_flicker}
+                          </Statistic.Label>
+                        </Statistic>
+                      </Grid.Row>
+
                         <Grid.Row>
                             <Chart coin={this.state.coin} data={this.state.data}/>
                         </Grid.Row>
