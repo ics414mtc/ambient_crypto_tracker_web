@@ -64,7 +64,7 @@ class Settings extends React.Component {
         this.handleTimeChange = this.props.handleTimeChange;
         this.handleActiveCustomPortfolio = this.props.handleActiveCustomPortfolio;
         this.submitChangePortfolio = this.props.submitChangePortfolio;
-        this.submit = this.submit;
+        this.submit = this.props.submit;
     }
     render() {
         return (
@@ -423,20 +423,27 @@ class Settings extends React.Component {
                   </Grid.Row>
 
                     <Grid.Row>
-                        <Chart coin={this.props.state.coin} data={this.props.state.data}/>
+                        <Chart coin={this.props.state.coin}
+                               data={this.props.state.data}
+                               customPortfolioActive={this.props.state.customPortfolio.active}
+                               customPortfolio={this.props.state.customPortfolio}
+                               submitCount={this.props.state.submit_count}
+                        />
                     </Grid.Row>
 
-                    <Grid.Row>
-                        <Segment inverted raised padded>
-                            <Statistic inverted>
-                                <Statistic.Value>
-                                    <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
-                                    {Math.round(this.props.state.coin_value * 100) / 100}
-                                </Statistic.Value>
-                                <Statistic.Label>{this.props.state.coin} Value</Statistic.Label>
-                            </Statistic>
-                        </Segment>
-                    </Grid.Row>
+                    {this.props.state.customPortfolio.active ?
+                        <Grid.Row><Icon name='dollar'/></Grid.Row>
+                        :<Grid.Row>
+                            <Segment inverted raised padded>
+                                <Statistic inverted>
+                                    <Statistic.Value>
+                                        <Image src={this.state.coin_image_sources[this.state.coin]} inline/>
+                                        {Math.round(this.props.state.coin_value * 100) / 100}
+                                    </Statistic.Value>
+                                    <Statistic.Label>{this.state.coin} Value</Statistic.Label>
+                                </Statistic>
+                            </Segment>
+                        </Grid.Row>}
                 </Grid.Column>
             </Grid.Row>
         );
