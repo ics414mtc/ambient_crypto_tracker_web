@@ -121,8 +121,11 @@ class Landing extends React.Component {
 
             coin_value: 0,
 
+            submit_count: Number(0),
+
             coin: 'Bitcoin',
             coin_image_sources: {
+                portfolio: 'https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwirpNGkn_fhAhVjGDQIHW9eBUYQjRx6BAgBEAU&url=https%3A%2F%2Fwww.variety.org.au%2Fnt%2Fgift-in-will%2Fdollar-sign-icon%2F&psig=AOvVaw2yUz57mtCVLBRZrMA0Rfl8&ust=1556694013422574',
                 Bitcoin: 'https://en.bitcoin.it/w/images/en/2/29/BC_Logo_.png',
                 Ethereum: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/628px-Ethereum_logo_2014.svg.png',
                 Litecoin: 'http://static1.squarespace.com/static/5a78883ba803bb706feafd92/t/5a7abe384192028e23fd111b/1517996289500/CUu4Xvk.jpg?format=1500w',
@@ -284,10 +287,11 @@ class Landing extends React.Component {
     submitChangePortfolio(data){
         const portfolio = data;
         const portfolio_object = Object.assign({}, this.state.customPortfolio);
-        // TODO
-        // for each key in data update portfolio_object.key to new value
-        console.log("submitChangePortfolio: data: ");
-        console.log(data);
+        Object.keys(data).map((key, index) => portfolio_object[key] = data[key]);
+        this.setState({customPortfolio: portfolio_object});
+        this.setState({submit_count: this.state.submit_count + 1});
+        console.log('submitChangePortfolio');
+        console.log(this.state.submit_count);
     }
 
     handleChangeFlickerRate(key) {
@@ -675,10 +679,17 @@ class Landing extends React.Component {
 
                     <Grid.Column width={6}>
                         <Grid.Row>
-                            <Chart coin={this.state.coin} data={this.state.data}/>
+                            <Chart coin={this.state.coin}
+                                   data={this.state.data}
+                                   customPortfolioActive={this.state.customPortfolio.active}
+                                   customPortfolio={this.state.customPortfolio}
+                                   submitCount={this.state.submit_count}
+                            />
                         </Grid.Row>
 
-                        <Grid.Row>
+                        {this.state.customPortfolio.active ?
+                            <Grid.Row><Image src={this.state.coin_image_sources.portfolio} inline/></Grid.Row>
+                            :<Grid.Row>
                             <Segment inverted raised padded>
                                 <Statistic inverted>
                                     <Statistic.Value>
@@ -688,7 +699,7 @@ class Landing extends React.Component {
                                     <Statistic.Label>{this.state.coin} Value</Statistic.Label>
                                 </Statistic>
                             </Segment>
-                        </Grid.Row>
+                        </Grid.Row>}
                     </Grid.Column>
                 </Grid.Row>
 
