@@ -65,7 +65,9 @@ class Settings extends React.Component {
         this.handleActiveCustomPortfolio = this.props.handleActiveCustomPortfolio;
         this.submitChangePortfolio = this.props.submitChangePortfolio;
         this.submit = this.props.submit;
+        this.build_portfolio_data = this.props.build_portfolio_data;
     }
+
     render() {
         return (
             <Grid.Row columns={2}>
@@ -332,7 +334,7 @@ class Settings extends React.Component {
                                                 <Radio
                                                     name='radioGroup'
                                                     value='0'
-                                                    checked={this.props.state.time === 0}
+                                                    checked={this.props.state.time === '0'}
                                                     onChange={this.handleTimeChange}
                                                 />
                                                 <Label>1h</Label>
@@ -341,7 +343,7 @@ class Settings extends React.Component {
                                                 <Radio
                                                     name='radioGroup'
                                                     value='1'
-                                                    checked={this.props.state.time === 1}
+                                                    checked={this.props.state.time === '1'}
                                                     onChange={this.handleTimeChange}
                                                 />
                                                 <Label>24h</Label>
@@ -350,7 +352,7 @@ class Settings extends React.Component {
                                                 <Radio
                                                     name='radioGroup'
                                                     value='2'
-                                                    checked={this.props.state.time === 2}
+                                                    checked={this.props.state.time === '2'}
                                                     onChange={this.handleTimeChange}
                                                 />
                                                 <Label>7d</Label>
@@ -375,52 +377,51 @@ class Settings extends React.Component {
                         </Table>
                     </Segment>
                 </Grid.Column>
-
                 <Grid.Column width={6}>
-
+                    {this.props.state.customPortfolio.active ? <a></a> :
                     <Label size="huge">
                       Current Settings
-                    </Label>
-
+                    </Label>}
+                    {this.props.state.customPortfolio.active ? <a></a> :
                     <Grid.Row>
                       <Statistic>
                         <Statistic.Label>
                           Coin: {this.props.state.coin}
                         </Statistic.Label>
                       </Statistic>
-                    </Grid.Row>
-
+                    </Grid.Row>}
+                    {this.props.state.customPortfolio.active ? <a></a> :
                   <Grid.Row>
                     <Statistic>
                       <Statistic.Label>
                         Time Frame: {this.props.state.timeString}
                       </Statistic.Label>
                     </Statistic>
-                  </Grid.Row>
-
+                  </Grid.Row>}
+                    {this.props.state.customPortfolio.active ? <a></a> :
                     <Grid.Row>
                       <Statistic>
                         <Statistic.Label>
                           Percent Change: {Math.round(this.props.state.current_pct_chg) + "%"}
                         </Statistic.Label>
                       </Statistic>
-                    </Grid.Row>
-
+                    </Grid.Row>}
+                    {this.props.state.customPortfolio.active ? <a></a> :
                   <Grid.Row>
                     <Statistic>
                       <Statistic.Label>
                         Brightness: {this.props.state.current_brightness}
                       </Statistic.Label>
                     </Statistic>
-                  </Grid.Row>
-
+                  </Grid.Row>}
+                    {this.props.state.customPortfolio.active ? <a></a> :
                   <Grid.Row>
                     <Statistic>
                       <Statistic.Label>
                         Flicker Rate: {this.props.state.current_flicker}
                       </Statistic.Label>
                     </Statistic>
-                  </Grid.Row>
+                  </Grid.Row>}
 
                     <Grid.Row>
                         <Chart coin={this.props.state.coin}

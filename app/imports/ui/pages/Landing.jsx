@@ -148,6 +148,7 @@ class Landing extends React.Component {
         this.componentDidMount = this.componentDidMount.bind(this);
         this.updateCoin = this.updateCoin.bind(this);
         this.updateSettings = this.updateSettings.bind(this);
+        this.updateSettings = this.updateSettings.bind(this);
     }
 
     updateCoin() {
@@ -262,6 +263,8 @@ class Landing extends React.Component {
         Object.keys(data).map((key, index) => portfolio_object[key] = data[key]);
         this.setState({customPortfolio: portfolio_object});
         this.setState({submit_count: this.state.submit_count + 1});
+        const pct_chg_data = this.build_portfolio_data();
+
         console.log('submitChangePortfolio');
         console.log(this.state.submit_count);
     }
@@ -336,6 +339,23 @@ class Landing extends React.Component {
 
     handleMenuClick(e, {name}) {
         this.setState({display: name});
+    }
+
+    build_portfolio_data() {
+        // console.log('build_portfolio_data');
+        // console.log(this.props.customPortfolio);
+        const indices = {0: 0, 1:1, 2:4, 3:5};
+        const keys = ['Bitcoin', 'Ethereum', 'Litecoin', 'BitcoinCash'];
+        const bitcoin_weights = keys.map((key) => this.props.customPortfolio[key]);
+        const total = bitcoin_weights.reduce((total, curr) => total + curr);
+        const pct_chgs_1h = Object.keys(indices).map((index, key) => bitcoin_weights[index] * this.data[key].quote.USD.percent_change_1h / total);
+        const pct_chgs_24h = Object.keys(indices).map((index, key) => bitcoin_weights[index] * this.data[key].quote.USD.percent_change_24h / total);
+        const pct_chgs_7d = Object.keys(indices).map((index, key) => bitcoin_weights[index] * this.data[key].quote.USD.percent_change_7d / total);
+        console.log('build_portfolio_data');
+        console.log(bitcoin_weights);
+        console.log(total);
+        return [pct_chgs_1h.reduce((total, curr) => total + curr), pct_chgs_24h.reduce((total, curr) => total + curr),
+            pct_chgs_7d.reduce((total, curr) => total + curr)];
     }
 
     render() {
